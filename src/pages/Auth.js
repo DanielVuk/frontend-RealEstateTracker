@@ -1,25 +1,30 @@
+import { Visibility, VisibilityOff } from "@mui/icons-material";
+import EmailIcon from "@mui/icons-material/Email";
+import LockIcon from "@mui/icons-material/Lock";
+import LockResetIcon from "@mui/icons-material/LockReset";
 import {
+  Alert,
   Box,
   Button,
   Divider,
   IconButton,
   InputAdornment,
+  Snackbar,
+  Stack,
   TextField,
   Typography,
 } from "@mui/material";
-import { Stack } from "@mui/system";
-import EmailIcon from "@mui/icons-material/Email";
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import logo from "../assets/logo.png";
-import { useTheme } from "@mui/material/styles";
-import LockIcon from "@mui/icons-material/Lock";
-import LockResetIcon from "@mui/icons-material/LockReset";
-import Visibility from "@mui/icons-material/Visibility";
-import VisibilityOff from "@mui/icons-material/VisibilityOff";
+import { login, register } from "../services/userServices";
 
 const Auth = () => {
-  const theme = useTheme();
+  const navigate = useNavigate();
+
+  const [error, setError] = useState("");
   const [isLogin, setIsLogin] = useState(true);
+  const [openSnackBar, setOpenSnackBar] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
   const [email, setEmail] = useState("");
@@ -30,10 +35,27 @@ const Auth = () => {
     event.preventDefault();
 
     try {
-      console.log("email: ", email);
-      console.log("password: ", password);
-      console.log("confirmation: ", confirmationPass);
-    } catch (error) {}
+      if (isLogin) {
+        let { data } = await login(email, password);
+
+        localStorage.setItem("token", data);
+
+        navigate("/home", { replace: true });
+      } else {
+        if (password !== confirmationPass) {
+          setError("The confirmation password is incorrect.");
+          setOpenSnackBar(true);
+          return;
+        }
+
+        let response = await register(email, password);
+        localStorage.setItem("token", response.headers["x-auth-token"]);
+        navigate("/home", { replace: true });
+      }
+    } catch (err) {
+      setError(err.response.data);
+      setOpenSnackBar(true);
+    }
   };
 
   return (
@@ -50,16 +72,18 @@ const Auth = () => {
           maxWidth: { xs: "350px", md: "450px" },
           minWidth: { xs: "300px", md: "450px" },
         }}
-      ></Box>
+      />
       <Box
         bgcolor="white"
         border="solid 1px"
-        borderColor={theme.palette.primary.main}
         borderRadius={3}
         boxShadow="5"
         mt="5vh"
         p={5}
-        sx={{ maxWidth: { xs: "350px", md: "500px" } }}
+        sx={{
+          maxWidth: { xs: "350px", md: "500px" },
+          borderColor: (theme) => theme.palette.primary.main,
+        }}
       >
         <Typography variant="h6">
           {isLogin ? "Login" : "Create account"}
@@ -80,7 +104,7 @@ const Auth = () => {
                 </InputAdornment>
               ),
             }}
-          ></TextField>
+          />
           <TextField
             fullWidth
             onChange={(e) => setPassword(e.target.value)}
@@ -118,7 +142,7 @@ const Auth = () => {
               InputProps={{
                 startAdornment: (
                   <InputAdornment position="start">
-                    <LockResetIcon color="primary"></LockResetIcon>
+                    <LockResetIcon color="primary" />
                   </InputAdornment>
                 ),
                 endAdornment: (
@@ -133,7 +157,7 @@ const Auth = () => {
                   </InputAdornment>
                 ),
               }}
-            ></TextField>
+            />
           )}
           <Button
             fullWidth
@@ -164,6 +188,14 @@ const Auth = () => {
           </Stack>
         </Box>
       </Box>
+      <Snackbar
+        anchorOrigin={{ vertical: "top", horizontal: "right" }}
+        autoHideDuration={6000}
+        onClose={() => setOpenSnackBar(false)}
+        open={openSnackBar}
+      >
+        <Alert severity="error">{error}</Alert>
+      </Snackbar>
     </Stack>
   );
 };

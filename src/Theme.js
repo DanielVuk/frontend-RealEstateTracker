@@ -4,7 +4,6 @@ const Colors = {
   primary: "#EA5E34",
   secondary: "#58D7FF",
   background: "#FFF9F8",
-  error: "#FF6D6D",
 };
 
 export const Theme = createTheme({
@@ -17,9 +16,6 @@ export const Theme = createTheme({
     },
     background: {
       default: Colors.background,
-    },
-    error: {
-      main: Colors.error,
     },
   },
   components: {
