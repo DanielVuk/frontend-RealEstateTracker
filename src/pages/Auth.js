@@ -14,13 +14,15 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import logo from "../assets/logo.png";
 import { login, register } from "../services/userServices";
+import { Context } from "../Store";
 
 const Auth = () => {
   const navigate = useNavigate();
+  const [state, setState] = useContext(Context);
 
   const [error, setError] = useState("");
   const [isLogin, setIsLogin] = useState(true);
@@ -39,8 +41,9 @@ const Auth = () => {
         let { data } = await login(email, password);
 
         localStorage.setItem("token", data);
+        setState({ ...state, user: data });
 
-        navigate("/home", { replace: true });
+        navigate("/", { replace: true });
       } else {
         if (password !== confirmationPass) {
           setError("The confirmation password is incorrect.");
@@ -50,7 +53,8 @@ const Auth = () => {
 
         let response = await register(email, password);
         localStorage.setItem("token", response.headers["x-auth-token"]);
-        navigate("/home", { replace: true });
+        setState({ ...state, user: response });
+        navigate("/", { replace: true });
       }
     } catch (err) {
       setError(err.response.data);
