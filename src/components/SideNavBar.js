@@ -1,4 +1,10 @@
-import { ChevronLeft, Dashboard, Home, Menu } from "@mui/icons-material";
+import {
+  ChevronLeft,
+  Dashboard,
+  Home,
+  Logout,
+  Menu,
+} from "@mui/icons-material";
 import {
   Box,
   Divider,
@@ -14,10 +20,10 @@ import {
   styled,
 } from "@mui/material";
 import MuiAppBar from "@mui/material/AppBar";
-import { useState } from "react";
-import { Link, Outlet, useLocation } from "react-router-dom";
+import { useContext, useState } from "react";
+import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
 import appIcon from "../assets/app_icon.png";
-
+import { Context } from "../Store";
 const drawerWidth = 240;
 
 const menu = [
@@ -69,9 +75,23 @@ const DrawerHeader = styled("div")(({ theme }) => ({
   justifyContent: "flex-end",
 }));
 
+const NavButtonsStyle = {
+  "&:hover": {
+    transition: "transform 0.3s",
+    transform: "scale(1.2)",
+  },
+};
+
 const SideNavBar = () => {
+  const [state] = useContext(Context);
   const [open, setOpen] = useState(true);
   const location = useLocation();
+  const navigate = useNavigate();
+
+  const handleLogOut = () => {
+    localStorage.clear();
+    navigate("/auth", { replace: true });
+  };
 
   return (
     <Box sx={{ display: "flex" }}>
@@ -79,15 +99,36 @@ const SideNavBar = () => {
         <Toolbar>
           <IconButton
             color="inherit"
-            onClick={() => setOpen(true)}
             edge="start"
-            sx={{ mr: 2, ...(open && { display: "none" }) }}
+            onClick={() => setOpen(true)}
+            sx={{
+              mr: 2,
+              ...(open && { display: "none" }),
+              ...NavButtonsStyle,
+            }}
           >
             <Menu />
           </IconButton>
-          <Typography variant="h6" noWrap component="div">
-            {menu.find((item) => item.path === location.pathname).title}
-          </Typography>
+          <Box
+            alignItems="center"
+            display="flex"
+            justifyContent="space-between"
+            width="100%"
+          >
+            <Typography variant="h6" noWrap component="div">
+              {menu.find((item) => item.path === location.pathname).title}
+            </Typography>
+            <IconButton
+              color="inherit"
+              onClick={handleLogOut}
+              sx={{
+                mr: 2,
+                ...NavButtonsStyle,
+              }}
+            >
+              <Logout />
+            </IconButton>
+          </Box>
         </Toolbar>
       </AppBar>
       <Drawer
@@ -123,7 +164,7 @@ const SideNavBar = () => {
         <Divider />
 
         <Typography m={2} fontWeight={600} color="primary" textAlign="center">
-          Daniel Vuk
+          {state.user.name}
         </Typography>
 
         <Divider />

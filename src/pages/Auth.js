@@ -1,4 +1,4 @@
-import { Visibility, VisibilityOff } from "@mui/icons-material";
+import { Person, Visibility, VisibilityOff } from "@mui/icons-material";
 import EmailIcon from "@mui/icons-material/Email";
 import LockIcon from "@mui/icons-material/Lock";
 import LockResetIcon from "@mui/icons-material/LockReset";
@@ -14,11 +14,12 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import React, { useContext, useState } from "react";
+import jwtDecode from "jwt-decode";
+import React, { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import logo from "../assets/logo.png";
-import { login, register } from "../services/userServices";
 import { Context } from "../Store";
+import logo from "../assets/logo.png";
+import { getUser, login, register } from "../services/userServices";
 
 const Auth = () => {
   const navigate = useNavigate();
@@ -29,36 +30,74 @@ const Auth = () => {
   const [openSnackBar, setOpenSnackBar] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmationPass, setConfirmationPass] = useState("");
+
+  useEffect(() => {
+    if (localStorage.getItem("token")) {
+      navigate("/", { replace: true });
+    }
+  }, []);
 
   const submit = async (event) => {
     event.preventDefault();
 
     try {
+      setState({ ...state, loading: true });
       if (isLogin) {
-        let { data } = await login(email, password);
+        console.log("Korisnik se logira");
+        let response = await login(email, password);
+        localStorage.setItem("token", response.data);
+        let decoded = jwtDecode(response.data);
+        localStorage.setItem("tokenExpiration", decoded.exp);
 
-        localStorage.setItem("token", data);
-        setState({ ...state, user: data });
+        response = await getUser(response.data);
+
+        await setState({
+          ...state,
+          user: {
+            name: response.data.name,
+            email: response.data.email,
+            id: response.data._id,
+          },
+          loading: false,
+        });
 
         navigate("/", { replace: true });
       } else {
+        console.log("Korisnik se registrira");
         if (password !== confirmationPass) {
           setError("The confirmation password is incorrect.");
           setOpenSnackBar(true);
+          setState({ ...state, loading: false });
           return;
         }
 
-        let response = await register(email, password);
+        let response = await register(name, email, password);
         localStorage.setItem("token", response.headers["x-auth-token"]);
-        setState({ ...state, user: response });
+
+        let decoded = jwtDecode(localStorage.getItem("token"));
+        localStorage.setItem("tokenExpiration", decoded.exp);
+
+        let result = await getUser(localStorage.getItem("token"));
+
+        await setState({
+          ...state,
+          user: {
+            name: result.data.name,
+            email: result.data.email,
+            id: result.data._id,
+          },
+          loading: false,
+        });
         navigate("/", { replace: true });
       }
     } catch (err) {
       setError(err.response.data);
       setOpenSnackBar(true);
+      setState({ ...state, loading: false });
     }
   };
 
@@ -94,6 +133,22 @@ const Auth = () => {
         </Typography>
         <Divider sx={{ marginBottom: "20px" }} />
         <Box component="form" onSubmit={submit}>
+          {!isLogin && (
+            <TextField
+              fullWidth
+              onChange={(e) => setName(e.target.value)}
+              placeholder="Username"
+              required
+              value={name}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <Person color="primary"></Person>
+                  </InputAdornment>
+                ),
+              }}
+            />
+          )}
           <TextField
             fullWidth
             onChange={(e) => setEmail(e.target.value)}

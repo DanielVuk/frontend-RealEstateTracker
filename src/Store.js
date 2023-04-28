@@ -2,6 +2,7 @@ import React, { useState } from "react";
 
 const initialState = {
   user: null,
+  loading: false,
 };
 
 const Context = React.createContext();
