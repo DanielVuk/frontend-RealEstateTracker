@@ -28,7 +28,7 @@ const drawerWidth = 240;
 
 const menu = [
   { title: "Home", path: "/", icon: Home },
-  { title: "Dashboard", path: "/dashboard", icon: Dashboard },
+  { title: "Properties", path: "/properties", icon: Dashboard },
 ];
 
 const Main = styled("main", { shouldForwardProp: (prop) => prop !== "open" })(
@@ -84,7 +84,7 @@ const NavButtonsStyle = {
 
 const SideNavBar = () => {
   const [state] = useContext(Context);
-  const [open, setOpen] = useState(true);
+  const [open, setOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -164,7 +164,7 @@ const SideNavBar = () => {
         <Divider />
 
         <Typography m={2} fontWeight={600} color="primary" textAlign="center">
-          {state.user.name}
+          {state.user && state.user.name}
         </Typography>
 
         <Divider />
@@ -174,6 +174,7 @@ const SideNavBar = () => {
               key={item.title}
               disablePadding
               component={Link}
+              onClick={() => setOpen(false)}
               to={item.path}
               sx={{
                 color: (theme) => theme.palette.primary.main,
