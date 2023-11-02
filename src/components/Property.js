@@ -11,22 +11,20 @@ import image from "../assets/kuca.jpeg";
 
 const Property = ({ property }) => {
   return (
-    <Card>
+    <Card sx={{ maxWidth: "300px" }}>
       <CardMedia component="img" src={image} />
       <CardContent>
-        <Typography variant="h6" fontWeight="bold">
-          $ {property.price}
-        </Typography>
+        <Typography variant="h6">$ {property.price}</Typography>
         <Typography>
           {property.place.city}, {property.place.adress}, {property.place.zip}
         </Typography>
       </CardContent>
       <CardActions
         sx={{
-          mt: -3,
-          flexDirection: "column",
           display: "flex",
+          flexDirection: "column",
           justifyContent: "flex-end",
+          mt: -3,
           width: "100%",
         }}
       >
