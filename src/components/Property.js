@@ -1,38 +1,56 @@
-import {
-  Button,
-  Card,
-  CardActions,
-  CardContent,
-  CardMedia,
-  Typography,
-} from "@mui/material";
+import { Box, ButtonBase, IconButton, Stack, Typography } from "@mui/material";
 import React from "react";
 import image from "../assets/kuca.jpeg";
+import { Link } from "react-router-dom";
+import DeleteIcon from "@mui/icons-material/Delete";
+import EditRoundedIcon from "@mui/icons-material/EditRounded";
 
-const Property = ({ property }) => {
+const Test = ({ property }) => {
   return (
-    <Card sx={{ maxWidth: "300px" }}>
-      <CardMedia component="img" src={image} />
-      <CardContent>
-        <Typography variant="h6">$ {property.price}</Typography>
-        <Typography>
-          {property.place.city}, {property.place.adress}, {property.place.zip}
-        </Typography>
-      </CardContent>
-      <CardActions
-        sx={{
-          display: "flex",
-          flexDirection: "column",
-          justifyContent: "flex-end",
-          mt: -3,
-          width: "100%",
+    <Box border="1px solid #d0d0ce" p={2} display="flex">
+      <ButtonBase
+        onClick={() => {
+          console.log("idi na nekretninu");
         }}
       >
-        <Button size="small">EDIT</Button>
-        <Button size="small">DELETE</Button>
-      </CardActions>
-    </Card>
+        <Box
+          borderRadius={1}
+          component="img"
+          maxHeight={200}
+          maxWidth={185}
+          src={image}
+        />
+      </ButtonBase>
+      <Stack ml={2} width="100%">
+        <Typography color="primary" component={Link} to="properties">
+          Porec, Brajde 39, 52465
+        </Typography>
+        <Typography>Land area: 54 m2</Typography>
+        <Typography>Purchase date: 23.12.1999s</Typography>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+          }}
+        >
+          <Typography variant="h6">120000€</Typography>
+          <Box display="flex">
+            <IconButton sx={{ backgroundColor: "background.default" }}>
+              <DeleteIcon color="error" />
+            </IconButton>
+            <IconButton
+              sx={{
+                backgroundColor: "background.default",
+                marginLeft: "15px",
+              }}
+            >
+              <EditRoundedIcon color="primary" />
+            </IconButton>
+          </Box>
+        </Box>
+      </Stack>
+    </Box>
   );
 };
 
-export default Property;
+export default Test;
