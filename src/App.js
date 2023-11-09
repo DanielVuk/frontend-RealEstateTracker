@@ -3,6 +3,7 @@ import MenuRoutes from "./MenuRoutes";
 import { Context } from "./Store";
 import LoadingSpinner from "./components/LoadingSpinner";
 import { getUser } from "./services/userServices";
+import { getUserPropertis } from "./services/propertyServices";
 
 const App = () => {
   const [state, setState] = useContext(Context);
@@ -17,6 +18,7 @@ const App = () => {
 
         setState({
           ...state,
+          properties: await getUserPropertis(token),
           user: {
             name: response.data.name,
             email: response.data.email,

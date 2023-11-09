@@ -5,11 +5,11 @@ const NotFound = () => {
   return (
     <Container
       sx={{
-        display: "flex",
         alignItems: "center",
-        justifyContent: "center",
-        height: "100vh",
+        display: "flex",
         flexDirection: "column",
+        height: "100vh",
+        justifyContent: "center",
         textAlign: "center",
       }}
     >
@@ -20,8 +20,7 @@ const NotFound = () => {
         Oops! Page not found
       </Typography>
       <Typography variant="body1" sx={{ mb: 4 }}>
-        The page you are looking for might have been removed, had its name
-        changed, or is temporarily unavailable.
+        We couldn't find the page you were looking for.
       </Typography>
       <Button variant="contained" component={Link} to="/" size="large">
         Go to Home

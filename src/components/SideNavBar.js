@@ -22,14 +22,11 @@ import {
 import MuiAppBar from "@mui/material/AppBar";
 import { useContext, useState } from "react";
 import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
-import appIcon from "../assets/app_icon.png";
 import { Context } from "../Store";
+import appIcon from "../assets/app_icon.png";
 const drawerWidth = 240;
 
-const menu = [
-  { title: "Home", path: "/", icon: Home },
-  { title: "Properties", path: "/properties", icon: Dashboard },
-];
+const menu = [{ title: "Home", path: "/", icon: Home }];
 
 const Main = styled("main", { shouldForwardProp: (prop) => prop !== "open" })(
   ({ theme, open }) => ({
@@ -112,12 +109,12 @@ const SideNavBar = () => {
           <Box
             alignItems="center"
             display="flex"
-            justifyContent="space-between"
+            justifyContent="flex-end"
             width="100%"
           >
-            <Typography variant="h6" noWrap component="div">
+            {/* <Typography variant="h6" noWrap component="div">
               {menu.find((item) => item.path === location.pathname).title}
-            </Typography>
+            </Typography> */}
             <IconButton
               color="inherit"
               onClick={handleLogOut}

@@ -1,11 +1,40 @@
-import { Box, ButtonBase, IconButton, Stack, Typography } from "@mui/material";
-import React from "react";
-import image from "../assets/kuca.jpeg";
-import { Link } from "react-router-dom";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditRoundedIcon from "@mui/icons-material/EditRounded";
+import { Box, ButtonBase, IconButton, Stack, Typography } from "@mui/material";
+import React, { useContext } from "react";
+import { Link } from "react-router-dom";
+import image from "../assets/kuca.jpeg";
+import { deleteProperty } from "../services/propertyServices";
+import { Context } from "../Store";
 
-const Test = ({ property }) => {
+const Property = ({ property }) => {
+  const [state, setState] = useContext(Context);
+
+  const handleDeleteProperty = async (property) => {
+    try {
+      setState({ ...state, loading: true });
+
+      let response = await deleteProperty(
+        localStorage.getItem("token"),
+        property._id
+      );
+
+      if (response.data._id === property._id) {
+        console.log(state);
+        setState({
+          ...state,
+          properties: [...state.properties].filter(
+            (p) => p._id !== property._id
+          ),
+          loading: false,
+        });
+      }
+    } catch (error) {
+      console.log(error);
+      setState({ ...state, loading: false });
+    }
+  };
+
   return (
     <Box border="1px solid #d0d0ce" p={2} display="flex">
       <ButtonBase
@@ -23,9 +52,10 @@ const Test = ({ property }) => {
       </ButtonBase>
       <Stack ml={2} width="100%">
         <Typography color="primary" component={Link} to="properties">
-          Porec, Brajde 39, 52465
+          {property.location.city}, {property.location.street},{" "}
+          {property.location.zip}
         </Typography>
-        <Typography>Land area: 54 m2</Typography>
+        <Typography>Land area: {property.size} m2</Typography>
         <Typography>Purchase date: 23.12.1999s</Typography>
         <Box
           sx={{
@@ -33,9 +63,12 @@ const Test = ({ property }) => {
             justifyContent: "space-between",
           }}
         >
-          <Typography variant="h6">120000€</Typography>
+          <Typography variant="h6">{property.price}€</Typography>
           <Box display="flex">
-            <IconButton sx={{ backgroundColor: "background.default" }}>
+            <IconButton
+              onClick={() => handleDeleteProperty(property)}
+              sx={{ backgroundColor: "background.default" }}
+            >
               <DeleteIcon color="error" />
             </IconButton>
             <IconButton
@@ -53,4 +86,4 @@ const Test = ({ property }) => {
   );
 };
 
-export default Test;
+export default Property;

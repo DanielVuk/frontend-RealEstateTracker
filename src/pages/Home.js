@@ -1,13 +1,14 @@
-import { Box, Container } from "@mui/material";
+import { Box, Button, Container, Typography } from "@mui/material";
 import Grid from "@mui/material/Unstable_Grid2";
 import React, { useContext } from "react";
+import { Link } from "react-router-dom";
 import { Context } from "../Store";
 import InfoCard from "../components/InfoCard";
 import Property from "../components/Property";
 
 const Home = () => {
   const [state] = useContext(Context);
-  console.log("HOME PAGE: ", state.user?.name, "    ", state.user?.email);
+
   return (
     <Container maxWidth="lg">
       <Grid container spacing={4}>
@@ -33,24 +34,33 @@ const Home = () => {
 
       <Grid container spacing={2}>
         <Grid xs={12} md={3}>
-          <Box bgcolor="white" boxShadow={1} height={300} width="100%">
+          <Box bgcolor="white" boxShadow={1} width="100%">
             filtriranje
           </Box>
         </Grid>
 
-        <Grid
-          bgcolor="white"
-          borderRadius={1}
-          boxShadow={1}
-          md={9}
-          mt={1}
-          p={2}
-          xs={12}
-        >
-          <Property></Property>
-          <Property></Property>
-          <Property></Property>
-        </Grid>
+        {state.properties.length > 0 ? (
+          <Grid
+            bgcolor="white"
+            borderRadius={1}
+            boxShadow={1}
+            md={9}
+            mt={1}
+            p={2}
+            xs={12}
+          >
+            {state.properties.map((property) => (
+              <Property key={property._id} property={property} />
+            ))}
+          </Grid>
+        ) : (
+          <Typography mt={2}>
+            There are not properties to show.{" "}
+            <Link to="add-property">
+              <Button variant="outlined">Add new property</Button>
+            </Link>
+          </Typography>
+        )}
       </Grid>
     </Container>
   );
