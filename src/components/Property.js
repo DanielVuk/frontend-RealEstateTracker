@@ -1,15 +1,15 @@
-import DeleteIcon from "@mui/icons-material/Delete";
-import EditRoundedIcon from "@mui/icons-material/EditRounded";
 import { Box, ButtonBase, IconButton, Stack, Typography } from "@mui/material";
 import React, { useContext } from "react";
 import { Link } from "react-router-dom";
+
+import DeleteIcon from "@mui/icons-material/Delete";
+import EditRoundedIcon from "@mui/icons-material/EditRounded";
+import { Context } from "../Store";
 import image from "../assets/kuca.jpeg";
 import { deleteProperty } from "../services/propertyServices";
-import { Context } from "../Store";
 
 const Property = ({ property }) => {
   const [state, setState] = useContext(Context);
-
   const handleDeleteProperty = async (property) => {
     try {
       setState({ ...state, loading: true });
@@ -20,12 +20,9 @@ const Property = ({ property }) => {
       );
 
       if (response.data._id === property._id) {
-        console.log(state);
         setState({
           ...state,
-          properties: [...state.properties].filter(
-            (p) => p._id !== property._id
-          ),
+          properties: state.properties.filter((p) => p._id !== property._id),
           loading: false,
         });
       }
@@ -39,7 +36,7 @@ const Property = ({ property }) => {
     <Box border="1px solid #d0d0ce" p={2} display="flex">
       <ButtonBase
         onClick={() => {
-          console.log("idi na nekretninu");
+          console.log("NEKRETNINEA: ", property);
         }}
       >
         <Box
@@ -55,7 +52,7 @@ const Property = ({ property }) => {
           {property.location.city}, {property.location.street},{" "}
           {property.location.zip}
         </Typography>
-        <Typography>Land area: {property.size} m2</Typography>
+        <Typography>Land area: {property.area} m2</Typography>
         <Typography>Purchase date: 23.12.1999s</Typography>
         <Box
           sx={{

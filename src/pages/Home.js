@@ -49,15 +49,20 @@ const Home = () => {
             p={2}
             xs={12}
           >
+            <Link to="add-real-estate">
+              <Button sx={{ mb: 1 }} variant="outlined">
+                Add Real Estate
+              </Button>
+            </Link>
             {state.properties.map((property) => (
               <Property key={property._id} property={property} />
             ))}
           </Grid>
         ) : (
           <Typography mt={2}>
-            There are not properties to show.{" "}
-            <Link to="add-property">
-              <Button variant="outlined">Add new property</Button>
+            There are not properties to show.
+            <Link to="add-real-estate">
+              <Button variant="outlined">Add Real Estate</Button>
             </Link>
           </Typography>
         )}
