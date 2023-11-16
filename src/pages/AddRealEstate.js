@@ -20,12 +20,16 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { Context } from "../Store";
 import ImageUpload from "../components/ImageUpload";
-import { addProperty } from "../services/propertyServices";
+import {
+  addProperty,
+  getPropertyById,
+  updateProperty,
+} from "../services/propertyServices";
 import uploadImages from "../firebase/uploadImages";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 const realEstateOptions = [
   { value: "Apartment", icon: <ApartmentIcon /> },
@@ -36,10 +40,10 @@ const realEstateOptions = [
   { value: "Other", icon: <CategoryIcon /> },
 ];
 
-const AddProperty = () => {
+const AddProperty = ({ editMode = false }) => {
   const [state, setState] = useContext(Context);
+  const { id } = useParams();
   const navigate = useNavigate();
-
   const [property, setProperty] = useState({
     type: "",
     location: { city: "", street: "", zip: "" },
@@ -51,6 +55,33 @@ const AddProperty = () => {
     contacts: [],
     description: "",
   });
+
+  const fetchData = async () => {
+    try {
+      if (editMode) {
+        let result = await getPropertyById(localStorage.getItem("token"), id);
+        console.log("DOBIVRENI PROPERTY: ", result);
+
+        setProperty({
+          type: result?.type || "",
+          location: result?.location || { city: "", street: "", zip: "" },
+          area: result?.area || 0,
+          price: result?.price || 0,
+          purchaseDate: result?.purchaseDate || new Date(),
+          imageUpload: result.imageUrls || [],
+          owners: result?.owners || [],
+          contacts: result?.contacts || [],
+          description: result?.description || "",
+        });
+      }
+    } catch (error) {
+      console.error("Error fetching property:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, [editMode, id]);
 
   console.log("My property: ", property);
   console.log("My STATE: ", state);
@@ -103,31 +134,47 @@ const AddProperty = () => {
     });
   };
 
-  const handleAddProperty = async () => {
+  const handleSubmit = async () => {
     try {
       setState({ ...state, loading: true });
 
-      // pozvati upload images i proslijeti slike iz property
-      let imageDownloadUrls = await uploadImages(property.imageUpload);
+      if (editMode) {
+        //srediti slike za novo slanje
+        let imageDownloadUrls = await uploadImages(property.imageUpload);
 
-      // uploadimages obradi slike, poalje na firebase, vrati url slika za download
-      console.log("URL ZA SPREMITI: ", imageDownloadUrls);
-      // updatam state s property, u koji spream download url slika
+        let result = await updateProperty(localStorage.getItem("token"), id, {
+          ...property,
+          imageUrls: imageDownloadUrls,
+        });
 
-      // zovem backend, spremam property
-      let result = await addProperty(localStorage.getItem("token"), {
-        ...property,
-        imageUrls: imageDownloadUrls,
-      });
+        setState((prevState) => ({
+          ...prevState,
+          properties: prevState.properties.map((p) =>
+            p._id === id ? result : p
+          ),
+          loading: false,
+        }));
 
-      console.log("RESULT: ", result.data);
+        console.log("STATE NAKON UPDATE: ", state);
+      } else {
+        // pozvati upload images i proslijeti slike iz property
+        // uploadimages obradi slike, poalje na firebase, vrati url slika za download
+        let imageDownloadUrls = await uploadImages(property.imageUpload);
 
-      navigate("/");
-      setState({
-        ...state,
-        properties: [...state.properties, { ...result.data }],
-        loading: false,
-      });
+        // zovem backend, spremam property
+        let result = await addProperty(localStorage.getItem("token"), {
+          ...property,
+          imageUrls: imageDownloadUrls,
+        });
+        console.log("RESULT: ", result.data);
+
+        navigate("/");
+        setState({
+          ...state,
+          properties: [...state.properties, { ...result.data }],
+          loading: false,
+        });
+      }
     } catch (error) {
       console.log(error);
       setState({ ...state, loading: false });
@@ -142,7 +189,7 @@ const AddProperty = () => {
       <form
         onSubmit={(event) => {
           event.preventDefault();
-          handleAddProperty();
+          handleSubmit();
         }}
       >
         <FormControl fullWidth variant="outlined">
@@ -231,7 +278,10 @@ const AddProperty = () => {
           <TextField
             label="Purchase Date"
             onChange={(e) =>
-              setProperty({ ...property, purchaseDate: e.target.value })
+              setProperty({
+                ...property,
+                purchaseDate: new Date(e.target.value).toLocaleDateString(),
+              })
             }
             type="date"
             value={property.purchaseDate}

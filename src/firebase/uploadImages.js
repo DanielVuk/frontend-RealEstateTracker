@@ -1,13 +1,18 @@
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { storage } from "../firebase/config";
+import { v4 } from "uuid";
 
-const uploadImages = async (blobImages) => {
+const uploadImages = async (files) => {
   try {
     const imageUrls = [];
 
-    for (const blobImage of blobImages) {
-      const storageRef = ref(storage, `images/${Date.now()}_${Math.random()}`);
-      await uploadBytes(storageRef, blobImage);
+    for (const file of files) {
+      if (typeof file === "string") {
+        imageUrls.push(file);
+        continue;
+      }
+      const storageRef = ref(storage, `images/${file.name + v4()}`);
+      await uploadBytes(storageRef, file);
 
       // Dohvati URL slike
       const downloadUrl = await getDownloadURL(storageRef);

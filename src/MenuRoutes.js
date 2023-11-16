@@ -16,6 +16,10 @@ const MenuRoutes = () => {
         <Route element={<SideNavBar />}>
           <Route path="/" element={<Home />} />
           <Route path="/add-real-estate" element={<AddRealEstate />} />
+          <Route
+            path="/edit-real-estate/:id"
+            element={<AddRealEstate editMode />}
+          />
         </Route>
       </Route>
       <Route path="*" element={<NotFound />} />

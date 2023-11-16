@@ -116,7 +116,9 @@ const SideNavBar = () => {
             width="100%"
           >
             <Typography variant="h6" noWrap component="div">
-              {menu.find((item) => item.path === location.pathname).title}
+              {menu.some((item) => item.path === location.pathname)
+                ? menu.find((item) => item.path === location.pathname).title
+                : ""}
             </Typography>
             <IconButton
               color="inherit"
@@ -176,9 +178,7 @@ const SideNavBar = () => {
               component={Link}
               onClick={() => setOpen(false)}
               to={item.path}
-              sx={{
-                color: (theme) => theme.palette.primary.main,
-              }}
+              sx={{ color: (theme) => theme.palette.primary.main }}
             >
               <ListItemButton selected={item.path === location.pathname}>
                 <ListItemIcon>

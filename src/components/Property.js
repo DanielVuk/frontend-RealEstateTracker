@@ -1,15 +1,16 @@
 import { Box, ButtonBase, IconButton, Stack, Typography } from "@mui/material";
 import React, { useContext } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditRoundedIcon from "@mui/icons-material/EditRounded";
 import { Context } from "../Store";
-import image from "../assets/kuca.jpeg";
 import { deleteProperty } from "../services/propertyServices";
 
 const Property = ({ property }) => {
   const [state, setState] = useContext(Context);
+  const navigate = useNavigate();
+
   const handleDeleteProperty = async (property) => {
     try {
       setState({ ...state, loading: true });
@@ -32,6 +33,10 @@ const Property = ({ property }) => {
     }
   };
 
+  const handleEditProperty = async (property) => {
+    navigate(`/edit-real-estate/${property._id}`);
+  };
+
   return (
     <Box border="1px solid #d0d0ce" p={2} display="flex">
       <ButtonBase
@@ -42,18 +47,20 @@ const Property = ({ property }) => {
         <Box
           borderRadius={1}
           component="img"
-          maxHeight={200}
+          maxHeight={110}
           maxWidth={185}
-          src={image}
+          src={property.imageUrls[0]}
         />
       </ButtonBase>
       <Stack ml={2} width="100%">
         <Typography color="primary" component={Link} to="properties">
-          {property.location.city}, {property.location.street},{" "}
+          {property.location.city}, {property.location.street},
           {property.location.zip}
         </Typography>
         <Typography>Land area: {property.area} m2</Typography>
-        <Typography>Purchase date: 23.12.1999s</Typography>
+        <Typography>
+          Purchase date: {new Date(property.purchaseDate).toLocaleDateString()}
+        </Typography>
         <Box
           sx={{
             display: "flex",
@@ -69,6 +76,7 @@ const Property = ({ property }) => {
               <DeleteIcon color="error" />
             </IconButton>
             <IconButton
+              onClick={() => handleEditProperty(property)}
               sx={{
                 backgroundColor: "background.default",
                 marginLeft: "15px",
