@@ -84,6 +84,25 @@ const updateProperty = async (token, propertyId, updatedProperty) => {
     console.log(error);
   }
 };
+//get Paginated properties
+const getPaginatedProperties = async (currentPage, itemsPerPage) => {
+  try {
+    const response = await axios.get(
+      process.env.REACT_APP_API_URL +
+        `/properties/paginated-properties?page=${currentPage}&itemsPerPage=${itemsPerPage}`,
+      {
+        headers: { "x-auth-token": localStorage.getItem("token") },
+      }
+    );
+
+    return {
+      properties: response.data.properties,
+      totalProperties: response.data.totalProperties,
+    };
+  } catch (error) {
+    console.error(error);
+  }
+};
 
 export {
   getUserPropertis,
@@ -91,4 +110,5 @@ export {
   addProperty,
   getPropertyById,
   updateProperty,
+  getPaginatedProperties,
 };

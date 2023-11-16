@@ -44,13 +44,14 @@ const AddProperty = ({ editMode = false }) => {
   const [state, setState] = useContext(Context);
   const { id } = useParams();
   const navigate = useNavigate();
+
   const [property, setProperty] = useState({
     type: "",
     location: { city: "", street: "", zip: "" },
     area: 0,
     price: 0,
     purchaseDate: new Date(),
-    imageUpload: [],
+    imageUrls: [],
     owners: [],
     contacts: [],
     description: "",
@@ -68,7 +69,7 @@ const AddProperty = ({ editMode = false }) => {
           area: result?.area || 0,
           price: result?.price || 0,
           purchaseDate: result?.purchaseDate || new Date(),
-          imageUpload: result.imageUrls || [],
+          imageUrls: result?.imageUrls || [],
           owners: result?.owners || [],
           contacts: result?.contacts || [],
           description: result?.description || "",
@@ -87,7 +88,7 @@ const AddProperty = ({ editMode = false }) => {
   console.log("My STATE: ", state);
 
   const handleImageChange = (newImages) => {
-    setProperty({ ...property, imageUpload: newImages });
+    setProperty({ ...property, imageUrls: newImages });
   };
 
   const handleAddOwner = () => {
@@ -140,7 +141,7 @@ const AddProperty = ({ editMode = false }) => {
 
       if (editMode) {
         //srediti slike za novo slanje
-        let imageDownloadUrls = await uploadImages(property.imageUpload);
+        let imageDownloadUrls = await uploadImages(property.imageUrls);
 
         let result = await updateProperty(localStorage.getItem("token"), id, {
           ...property,
@@ -154,12 +155,12 @@ const AddProperty = ({ editMode = false }) => {
           ),
           loading: false,
         }));
-
+        navigate("/");
         console.log("STATE NAKON UPDATE: ", state);
       } else {
         // pozvati upload images i proslijeti slike iz property
         // uploadimages obradi slike, poalje na firebase, vrati url slika za download
-        let imageDownloadUrls = await uploadImages(property.imageUpload);
+        let imageDownloadUrls = await uploadImages(property.imageUrls);
 
         // zovem backend, spremam property
         let result = await addProperty(localStorage.getItem("token"), {
@@ -168,12 +169,12 @@ const AddProperty = ({ editMode = false }) => {
         });
         console.log("RESULT: ", result.data);
 
-        navigate("/");
         setState({
           ...state,
           properties: [...state.properties, { ...result.data }],
           loading: false,
         });
+        navigate("/");
       }
     } catch (error) {
       console.log(error);
@@ -184,7 +185,7 @@ const AddProperty = ({ editMode = false }) => {
   return (
     <Container maxWidth="lg">
       <Typography mb={2} variant="h6">
-        Add Real Estate
+        {editMode ? "Edit " : "Add "} Real Estate
       </Typography>
       <form
         onSubmit={(event) => {
@@ -292,11 +293,10 @@ const AddProperty = ({ editMode = false }) => {
           Attach Photos
         </Typography>
         <ImageUpload
-          images={property.imageUpload}
+          images={property.imageUrls}
           onImageChange={handleImageChange}
         />
 
-        {/* Unos podataka o vlasnicima */}
         <Grid mb={5} container spacing={2} my={2}>
           <Grid item>
             <Typography fontWeight="bold" mb={2}>
@@ -399,7 +399,8 @@ const AddProperty = ({ editMode = false }) => {
         />
 
         <Button type="submit" variant="contained">
-          Add Real Estate
+          {editMode ? "Edit " : "Add "}
+          Real Estate
         </Button>
       </form>
     </Container>

@@ -14,10 +14,8 @@ const uploadImages = async (files) => {
       const storageRef = ref(storage, `images/${file.name + v4()}`);
       await uploadBytes(storageRef, file);
 
-      // Dohvati URL slike
       const downloadUrl = await getDownloadURL(storageRef);
 
-      // Dodajte URL slike u polje
       imageUrls.push(downloadUrl);
     }
 

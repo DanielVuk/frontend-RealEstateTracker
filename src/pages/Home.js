@@ -1,13 +1,43 @@
-import { Box, Button, Container, Typography } from "@mui/material";
+import { Box, Button, Container, Pagination, Typography } from "@mui/material";
 import Grid from "@mui/material/Unstable_Grid2";
-import React, { useContext } from "react";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { Context } from "../Store";
 import InfoCard from "../components/InfoCard";
 import Property from "../components/Property";
+import { getPaginatedProperties } from "../services/propertyServices";
 
 const Home = () => {
-  const [state] = useContext(Context);
+  const [localState, setLocalState] = useState({
+    currentPage: 1,
+    itemsPerPage: 5,
+    totalProperties: 0,
+    properties: [],
+  });
+
+  console.log("LOCAL STATE: ", localState);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const { properties, totalProperties } = await getPaginatedProperties(
+          localState.currentPage,
+          localState.itemsPerPage
+        );
+        setLocalState({
+          ...localState,
+          properties,
+          totalProperties,
+        });
+      } catch (error) {
+        console.error(error);
+      }
+    };
+    fetchData();
+  }, [localState.currentPage, localState.itemsPerPage]);
+
+  const paginate = (pageNumber) => {
+    setLocalState({ ...localState, currentPage: pageNumber });
+  };
 
   return (
     <Container maxWidth="lg">
@@ -39,7 +69,7 @@ const Home = () => {
           </Box>
         </Grid>
 
-        {state.properties.length > 0 ? (
+        {localState.properties.length > 0 ? (
           <Grid
             bgcolor="white"
             borderRadius={1}
@@ -54,9 +84,18 @@ const Home = () => {
                 Add Real Estate
               </Button>
             </Link>
-            {state.properties.map((property) => (
+            {localState.properties.map((property) => (
               <Property key={property._id} property={property} />
             ))}
+            <Pagination
+              count={Math.ceil(
+                localState.totalProperties / localState.itemsPerPage
+              )}
+              page={localState.currentPage}
+              onChange={(event, value) => paginate(value)}
+              color="primary"
+              sx={{ mt: 3 }}
+            />
           </Grid>
         ) : (
           <Typography mt={2}>
