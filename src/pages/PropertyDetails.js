@@ -1,15 +1,15 @@
+import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import { Box, Container, Grid, IconButton, Typography } from "@mui/material";
 import React, { useContext, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { Context } from "../Store";
 import AddProjectForm from "../components/AddProjectForm";
+import AddTransactionForm from "../components/AddTransactionForm";
 import AppModal from "../components/AppModal";
 import InfoCard from "../components/InfoCard";
 import Project from "../components/Project";
-import { getPropertyById, updateProperty } from "../services/propertyServices";
-import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import Transaction from "../components/Transaction";
-import AddTransactionForm from "../components/AddTransactionForm";
+import { getPropertyById, updateProperty } from "../services/propertyServices";
 
 const PropertyDetails = () => {
   const [state, setState] = useContext(Context);
@@ -19,15 +19,11 @@ const PropertyDetails = () => {
   const [transactionModal, setTransactionModal] = useState(false);
   const [selectedProject, setSelectedProject] = useState();
 
-  console.log("STATE: ", state);
-
-  console.log("SELECTED PROJECT: ", selectedProject);
-
   const fetchData = async () => {
     try {
       setState({ ...state, loading: true });
       let result = await getPropertyById(localStorage.getItem("token"), id);
-
+      console.log("Podaci prije ažuriranja:", property);
       setProperty({
         type: result?.type || "",
         location: result?.location || { city: "", street: "", zip: "" },
@@ -41,6 +37,7 @@ const PropertyDetails = () => {
         description: result?.description || "",
       });
       setState({ ...state, loading: false });
+      console.log("Podaci nakon ažuriranja:", result);
     } catch (error) {
       console.error("Error fetching property:", error);
       setState({ ...state, loading: false });
@@ -77,40 +74,38 @@ const PropertyDetails = () => {
   };
 
   const handleAddTransaction = async (transaction) => {
-    console.log("Dodaj tranaskciju: ", transaction);
-
     const projectIndex = property.projects.findIndex(
       (p) => p._id === selectedProject._id
     );
 
     if (projectIndex !== -1)
-      property.projects[projectIndex].transactions.push(transaction);
-    console.log(property.projects);
+      property.projects[projectIndex].transactions = [
+        transaction,
+        ...property.projects[projectIndex].transactions,
+      ];
 
-    // setProperty(...property, propertyprojects.transactions: )
-    // try {
-    //   setState({ ...state, loading: true });
+    try {
+      setState({ ...state, loading: true });
 
-    //   let result = await updateProperty(localStorage.getItem("token"), id, {
-    //     ...property,
-    //     projects: [...property.projects, transaction],
-    //   });
+      let result = await updateProperty(localStorage.getItem("token"), id, {
+        ...property,
+      });
 
-    //   setState((prevState) => ({
-    //     ...prevState,
-    //     properties: prevState.properties.map((p) =>
-    //       p._id === id ? result : p
-    //     ),
-    //     loading: false,
-    //   }));
-    //   setProperty(result);
-
-    //   setTransactionModal(false);
-    // } catch (error) {
-    //   console.log(error);
-    //   setState({ ...state, loading: false });
-    //   setTransactionModal(false);
-    // }
+      setState((prevState) => ({
+        ...prevState,
+        properties: prevState.properties.map((p) =>
+          p._id === id ? result : p
+        ),
+        loading: false,
+      }));
+      setProperty(result);
+      setTransactionModal(false);
+      setSelectedProject(result.projects[projectIndex]);
+    } catch (error) {
+      console.log(error);
+      setState({ ...state, loading: false });
+      setTransactionModal(false);
+    }
   };
 
   const handleDeleteProject = async (project) => {
@@ -136,41 +131,84 @@ const PropertyDetails = () => {
     }
   };
 
+  const handelDeleteTransaction = async (transaction) => {
+    setState({ ...state, loading: true });
+    const projectIndex = property.projects.findIndex(
+      (p) => p._id === selectedProject._id
+    );
+
+    if (projectIndex !== -1) {
+      const transactionIndex = property.projects[
+        projectIndex
+      ].transactions.findIndex((t) => t._id === transaction._id);
+
+      if (transactionIndex !== -1) {
+        property.projects[projectIndex].transactions.splice(
+          transactionIndex,
+          1
+        );
+
+        try {
+          let result = await updateProperty(localStorage.getItem("token"), id, {
+            ...property,
+          });
+
+          setState((prevState) => ({
+            ...prevState,
+            properties: prevState.properties.map((p) =>
+              p._id === id ? result : p
+            ),
+            loading: false,
+          }));
+          setProperty(result);
+          setSelectedProject(result.projects[projectIndex]);
+        } catch (error) {
+          console.log(error);
+          setState({ ...state, loading: false });
+        }
+      } else {
+        console.error("Transakcija nije pronađena u projektu.");
+      }
+    } else {
+      console.error("Projekt nije pronađen.");
+    }
+  };
+
   return (
     <Container maxWidth="lg">
       <Typography>Real Estate Details</Typography>
       <Grid container spacing={4}>
         <Grid item xs={12} sm={6} md={4}>
-          <InfoCard title="Type: " desc={property.type} isIcon={false} />
+          <InfoCard title="Type: " desc={property?.type} isIcon={false} />
         </Grid>
         <Grid item xs={12} sm={6} md={4}>
           <InfoCard
             title="Purchase price: "
-            desc={property.price}
+            desc={property?.price}
             isIcon={false}
           />
         </Grid>
         <Grid item xs={12} sm={6} md={4}>
-          <InfoCard title="Area: " desc={property.area} isIcon={false} />
+          <InfoCard title="Area: " desc={property?.area} isIcon={false} />
         </Grid>
         <Grid item xs={12} sm={6} md={4}>
           <InfoCard
             title="City: "
-            desc={property.location?.city}
+            desc={property?.location?.city}
             isIcon={false}
           />
         </Grid>
         <Grid item xs={12} sm={6} md={4}>
           <InfoCard
             title="Street: "
-            desc={property.location?.street}
+            desc={property?.location?.street}
             isIcon={false}
           />
         </Grid>
         <Grid item xs={12} sm={6} md={4}>
           <InfoCard
             title="ZIP: "
-            desc={property.location?.zip}
+            desc={property?.location?.zip}
             isIcon={false}
           />
         </Grid>
@@ -206,7 +244,7 @@ const PropertyDetails = () => {
         <Grid item xs={12} md={6}>
           <Box display="flex">
             <Typography variant="h6" my={1}>
-              Projects: {property.projects?.length}
+              Projects: {property?.projects?.length}
             </Typography>
             <IconButton
               color="primary"
@@ -217,7 +255,7 @@ const PropertyDetails = () => {
             </IconButton>
           </Box>
 
-          {property.projects?.length > 0 ? (
+          {property?.projects?.length > 0 ? (
             property.projects.map((project) => (
               <Project
                 key={project._id}
@@ -241,7 +279,7 @@ const PropertyDetails = () => {
         <Grid item xs={12} md={6}>
           <Box display="flex">
             <Typography variant="h6" my={1}>
-              Transactions: {property.projects?.length}
+              Transactions: {selectedProject?.transactions?.length}
             </Typography>
             <IconButton
               color="primary"
@@ -252,7 +290,14 @@ const PropertyDetails = () => {
               <AddCircleOutlineIcon />
             </IconButton>
           </Box>
-          {selectedProject && <Transaction />}
+          {selectedProject &&
+            selectedProject?.transactions?.map((t) => (
+              <Transaction
+                key={t._id}
+                transaction={t}
+                onDelete={() => handelDeleteTransaction(t)}
+              />
+            ))}
         </Grid>
       </Grid>
 

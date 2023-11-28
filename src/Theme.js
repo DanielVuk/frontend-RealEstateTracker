@@ -5,6 +5,7 @@ export const Colors = {
   secondary: "#58D7FF",
   background: "#FFF9F8",
   expense: "#ffcccc",
+  income: "#ccff99",
 };
 
 export const Theme = createTheme({
