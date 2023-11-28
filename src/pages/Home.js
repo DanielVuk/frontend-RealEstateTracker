@@ -1,12 +1,14 @@
 import { Box, Button, Container, Pagination, Typography } from "@mui/material";
 import Grid from "@mui/material/Unstable_Grid2";
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import InfoCard from "../components/InfoCard";
 import Property from "../components/Property";
 import { getPaginatedProperties } from "../services/propertyServices";
+import { Context } from "../Store";
 
 const Home = () => {
+  const [state, setState] = useContext(Context);
   const [localState, setLocalState] = useState({
     currentPage: 1,
     itemsPerPage: 5,
@@ -15,25 +17,30 @@ const Home = () => {
   });
 
   console.log("LOCAL STATE: ", localState);
-
+  console.log("STATEEEEE", state);
   useEffect(() => {
     const fetchData = async () => {
       try {
+        setState((prevState) => ({ ...prevState, loading: true }));
         const { properties, totalProperties } = await getPaginatedProperties(
           localState.currentPage,
           localState.itemsPerPage
         );
+        console.log("TU SAM: ", localState.totalProperties);
+
         setLocalState({
           ...localState,
           properties,
           totalProperties,
         });
+        setState((prevState) => ({ ...prevState, loading: false }));
       } catch (error) {
         console.error(error);
+        setState((prevState) => ({ ...prevState, loading: false }));
       }
     };
     fetchData();
-  }, [localState.currentPage, localState.itemsPerPage]);
+  }, [localState.currentPage, state.properties.length]);
 
   const paginate = (pageNumber) => {
     setLocalState({ ...localState, currentPage: pageNumber });

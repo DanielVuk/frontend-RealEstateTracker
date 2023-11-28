@@ -1,9 +1,10 @@
 import { createTheme } from "@mui/material/styles";
 
-const Colors = {
+export const Colors = {
   primary: "#EA5E34",
   secondary: "#58D7FF",
   background: "#FFF9F8",
+  expense: "#ffcccc",
 };
 
 export const Theme = createTheme({

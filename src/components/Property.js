@@ -5,6 +5,7 @@ import { Link, useNavigate } from "react-router-dom";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditRoundedIcon from "@mui/icons-material/EditRounded";
 import { Context } from "../Store";
+import { formatDate } from "../helpers/formatDate";
 import { deleteProperty } from "../services/propertyServices";
 
 const Property = ({ property }) => {
@@ -41,7 +42,7 @@ const Property = ({ property }) => {
     <Box border="1px solid #d0d0ce" p={2} display="flex">
       <ButtonBase
         onClick={() => {
-          console.log("NEKRETNINEA: ", property);
+          navigate(`/property/${property._id}`);
         }}
       >
         <Box
@@ -53,13 +54,17 @@ const Property = ({ property }) => {
         />
       </ButtonBase>
       <Stack ml={2} width="100%">
-        <Typography color="primary" component={Link} to="properties">
+        <Typography
+          color="primary"
+          component={Link}
+          to={`/property/${property._id}`}
+        >
           {property.location.city}, {property.location.street},
           {property.location.zip}
         </Typography>
         <Typography>Land area: {property.area} m2</Typography>
         <Typography>
-          Purchase date: {new Date(property.purchaseDate).toLocaleDateString()}
+          Purchase date: {formatDate(property.purchaseDate)}
         </Typography>
         <Box
           sx={{

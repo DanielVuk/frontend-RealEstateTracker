@@ -54,6 +54,7 @@ const AddProperty = ({ editMode = false }) => {
     imageUrls: [],
     owners: [],
     contacts: [],
+    projects: [],
     description: "",
   });
 
@@ -72,6 +73,7 @@ const AddProperty = ({ editMode = false }) => {
           imageUrls: result?.imageUrls || [],
           owners: result?.owners || [],
           contacts: result?.contacts || [],
+          projects: [],
           description: result?.description || "",
         });
       }

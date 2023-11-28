@@ -6,6 +6,7 @@ import SideNavBar from "./components/SideNavBar";
 import AddRealEstate from "./pages/AddRealEstate";
 import Auth from "./pages/Auth";
 import Home from "./pages/Home";
+import PropertyDetails from "./pages/PropertyDetails";
 import NotFound from "./pages/NotFound";
 
 const MenuRoutes = () => {
@@ -20,6 +21,7 @@ const MenuRoutes = () => {
             path="/edit-real-estate/:id"
             element={<AddRealEstate editMode />}
           />
+          <Route path="/property/:id" element={<PropertyDetails />} />
         </Route>
       </Route>
       <Route path="*" element={<NotFound />} />

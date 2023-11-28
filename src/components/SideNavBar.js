@@ -29,6 +29,7 @@ const drawerWidth = 240;
 const menu = [
   { title: "Home", path: "/", icon: Home },
   { title: "Add Real Estate", path: "/add-real-estate", icon: AddBusiness },
+  { title: "Projects", path: "/projects-page", icon: AddBusiness },
 ];
 
 const Main = styled("main", { shouldForwardProp: (prop) => prop !== "open" })(
