@@ -1,11 +1,31 @@
-import { Box, Button, Container, Pagination, Typography } from "@mui/material";
+import {
+  Box,
+  Button,
+  Container,
+  Divider,
+  FormControl,
+  InputLabel,
+  MenuItem,
+  Pagination,
+  Select,
+  TextField,
+  Typography,
+} from "@mui/material";
 import Grid from "@mui/material/Unstable_Grid2";
 import React, { useContext, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { Context } from "../Store";
 import InfoCard from "../components/InfoCard";
 import Property from "../components/Property";
 import { getPaginatedProperties } from "../services/propertyServices";
-import { Context } from "../Store";
+
+const initialFilter = {
+  type: "",
+  minPrice: "",
+  maxPrice: "",
+  minArea: "",
+  maxArea: "",
+};
 
 const Home = () => {
   const [state, setState] = useContext(Context);
@@ -14,20 +34,18 @@ const Home = () => {
     itemsPerPage: 5,
     totalProperties: 0,
     properties: [],
+    filter: initialFilter,
   });
 
-  console.log("LOCAL STATE: ", localState);
-  console.log("STATEEEEE", state);
   useEffect(() => {
     const fetchData = async () => {
       try {
         setState((prevState) => ({ ...prevState, loading: true }));
         const { properties, totalProperties } = await getPaginatedProperties(
           localState.currentPage,
-          localState.itemsPerPage
+          localState.itemsPerPage,
+          localState.filter
         );
-        console.log("TU SAM: ", localState.totalProperties);
-
         setLocalState({
           ...localState,
           properties,
@@ -44,6 +62,38 @@ const Home = () => {
 
   const paginate = (pageNumber) => {
     setLocalState({ ...localState, currentPage: pageNumber });
+  };
+
+  const handleFilterChange = (field, value) => {
+    setLocalState((prevState) => ({
+      ...prevState,
+      filter: {
+        ...prevState.filter,
+        [field]: value,
+      },
+    }));
+  };
+
+  const handleFilterClick = async (isReset = false) => {
+    try {
+      setState((prevState) => ({ ...prevState, loading: true }));
+      const { properties, totalProperties } = await getPaginatedProperties(
+        localState.currentPage,
+        localState.itemsPerPage,
+        isReset ? initialFilter : localState.filter
+      );
+
+      setLocalState((prevLocalState) => ({
+        ...prevLocalState,
+        properties,
+        totalProperties,
+        filter: isReset ? initialFilter : prevLocalState.filter,
+      }));
+      setState((prevState) => ({ ...prevState, loading: false }));
+    } catch (error) {
+      console.error(error);
+      setState((prevState) => ({ ...prevState, loading: false }));
+    }
   };
 
   return (
@@ -70,9 +120,86 @@ const Home = () => {
       </Grid>
 
       <Grid container spacing={2}>
-        <Grid xs={12} md={3}>
-          <Box bgcolor="white" boxShadow={1} width="100%">
-            filtriranje
+        <Grid xs={12} md={3} minWidth={263}>
+          <Box bgcolor="white" borderRadius={1} boxShadow={1} p={2}>
+            <Typography variant="body2" fontWeight="bold">
+              FILTRIRAJ REZULTATE
+              {Object.values(localState.filter).some(
+                (value) => value !== ""
+              ) ? (
+                <Button
+                  size="small"
+                  onClick={() => {
+                    handleFilterClick(true);
+                  }}
+                >
+                  RESET
+                </Button>
+              ) : null}
+            </Typography>
+            <Divider sx={{ mt: 1, mb: 2 }} />
+            <FormControl fullWidth variant="outlined">
+              <InputLabel id="type-label">Real Estate Type</InputLabel>
+              <Select
+                id="type"
+                label="Real Estate Type"
+                labelId="type-label"
+                size="small"
+                onChange={(e) => handleFilterChange("type", e.target.value)}
+                value={localState.filter.type}
+                required
+              >
+                <MenuItem value="Apartment">Apartment</MenuItem>
+                <MenuItem value="House">House</MenuItem>
+                <MenuItem value="Land">Land</MenuItem>
+                <MenuItem value="Garage">Garage</MenuItem>
+                <MenuItem value="Commercial Property">
+                  Commercial Property
+                </MenuItem>
+                <MenuItem value="Other">Other</MenuItem>
+              </Select>
+            </FormControl>
+            <Box display="flex" alignItems="center" justifyContent="center">
+              <TextField
+                fullWidth
+                placeholder="Min Price"
+                onChange={(e) => handleFilterChange("minPrice", e.target.value)}
+                type="number"
+                size="small"
+                value={localState.filter.minPrice}
+              />
+              <Typography mx={0.5}> - </Typography>
+              <TextField
+                fullWidth
+                placeholder="Max Price"
+                onChange={(e) => handleFilterChange("maxPrice", e.target.value)}
+                type="number"
+                size="small"
+                value={localState.filter.maxPrice}
+              />
+            </Box>
+            <Box display="flex" alignItems="center" justifyContent="center">
+              <TextField
+                fullWidth
+                placeholder="Min Area"
+                size="small"
+                onChange={(e) => handleFilterChange("minArea", e.target.value)}
+                type="number"
+                value={localState.filter.minArea}
+              />
+              <Typography mx={0.5}> - </Typography>
+              <TextField
+                fullWidth
+                size="small"
+                placeholder="Max Area"
+                onChange={(e) => handleFilterChange("maxArea", e.target.value)}
+                type="number"
+                value={localState.filter.maxArea}
+              />
+            </Box>
+            <Button variant="contained" onClick={() => handleFilterClick()}>
+              Apply Filters
+            </Button>
           </Box>
         </Grid>
 

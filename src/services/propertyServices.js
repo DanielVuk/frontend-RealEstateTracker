@@ -85,13 +85,22 @@ const updateProperty = async (token, propertyId, updatedProperty) => {
   }
 };
 //get Paginated properties
-const getPaginatedProperties = async (currentPage, itemsPerPage) => {
+const getPaginatedProperties = async (currentPage, itemsPerPage, filter) => {
   try {
     const response = await axios.get(
-      process.env.REACT_APP_API_URL +
-        `/properties/paginated-properties?page=${currentPage}&itemsPerPage=${itemsPerPage}`,
+      process.env.REACT_APP_API_URL + `/properties/paginated-properties`,
+
       {
         headers: { "x-auth-token": localStorage.getItem("token") },
+        params: {
+          page: currentPage,
+          itemsPerPage,
+          type: filter?.type,
+          minPrice: filter?.minPrice,
+          maxPrice: filter?.maxPrice,
+          minArea: filter?.minArea,
+          maxArea: filter?.maxArea,
+        },
       }
     );
 
