@@ -17,6 +17,9 @@ import { Link } from "react-router-dom";
 import { Context } from "../Store";
 import InfoCard from "../components/InfoCard";
 import Property from "../components/Property";
+import { formatCurrency } from "../helpers/formatCurrency";
+import { getCountOfActiveProjects } from "../helpers/getCountOfActiveProjects";
+import { getTotalAmountByType } from "../helpers/getTotalAmountByType";
 import { getPaginatedProperties } from "../services/propertyServices";
 
 const initialFilter = {
@@ -100,22 +103,45 @@ const Home = () => {
     <Container maxWidth="lg">
       <Grid container spacing={4}>
         <Grid item xs={12} sm={6} md={4}>
-          <InfoCard title="Total propertys: " desc="0/5" />
+          <InfoCard title="Total properties: " desc={state.properties.length} />
         </Grid>
         <Grid item xs={12} sm={6} md={4}>
-          <InfoCard title="Total projects: " desc="0/5" />
+          <InfoCard
+            title="Total projects: "
+            desc={state.properties.reduce(
+              (sum, property) => sum + property.projects.length,
+              0
+            )}
+          />
         </Grid>
         <Grid item xs={12} sm={6} md={4}>
-          <InfoCard title="Total income: " desc="0/5" />
+          <InfoCard
+            title="Total income: "
+            desc={formatCurrency(getTotalAmountByType(state, "income"))}
+          />
         </Grid>
         <Grid item xs={12} sm={6} md={4}>
-          <InfoCard title="Asset value: " desc="0/5" />
+          <InfoCard
+            title="Asset purchase value: "
+            desc={formatCurrency(
+              state.properties.reduce(
+                (sum, property) => sum + property.price,
+                0
+              )
+            )}
+          />
         </Grid>
         <Grid item xs={12} sm={6} md={4}>
-          <InfoCard title="Active projects: " desc="0/5" />
+          <InfoCard
+            title="Active projects: "
+            desc={getCountOfActiveProjects(state)}
+          />
         </Grid>
         <Grid item xs={12} sm={6} md={4}>
-          <InfoCard title="Total expenses: " desc="0/5" />
+          <InfoCard
+            title="Total expenses: "
+            desc={formatCurrency(getTotalAmountByType(state, "expense"))}
+          />
         </Grid>
       </Grid>
 

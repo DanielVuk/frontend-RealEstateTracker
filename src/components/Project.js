@@ -5,8 +5,8 @@ import TaskAltIcon from "@mui/icons-material/TaskAlt";
 import { Box, Card, IconButton, Stack, Typography } from "@mui/material";
 import React from "react";
 import { formatDate } from "../helpers/formatDate";
-
-const Project = ({ project, onDelete, onSelect, selected }) => {
+import DoneIcon from "@mui/icons-material/Done";
+const Project = ({ project, onDelete, onComplete, onSelect, selected }) => {
   return (
     <Card
       onClick={onSelect}
@@ -15,7 +15,7 @@ const Project = ({ project, onDelete, onSelect, selected }) => {
         alignItems: "center",
         minWidth: "400px",
         borderRadius: 5,
-        margin: "0 23px 23px 0",
+        mb: 1,
         boxShadow: 3,
         padding: "15px",
         "&:hover": {
@@ -62,14 +62,17 @@ const Project = ({ project, onDelete, onSelect, selected }) => {
           >
             <DeleteIcon color="error" />
           </IconButton>
-          <IconButton
-            sx={{
-              backgroundColor: "background.default",
-              margin: "3px 15px",
-            }}
-          >
-            <EditIcon color="primary" />
-          </IconButton>
+          {project.status === "in progress" && (
+            <IconButton
+              onClick={onComplete}
+              sx={{
+                backgroundColor: "background.default",
+                margin: "3px 15px",
+              }}
+            >
+              <DoneIcon color="primary" />
+            </IconButton>
+          )}
         </Box>
       </Box>
     </Card>

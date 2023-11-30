@@ -1,5 +1,13 @@
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
-import { Box, Container, Grid, IconButton, Typography } from "@mui/material";
+import {
+  Box,
+  Container,
+  Grid,
+  IconButton,
+  ToggleButton,
+  ToggleButtonGroup,
+  Typography,
+} from "@mui/material";
 import React, { useContext, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { Context } from "../Store";
@@ -10,6 +18,7 @@ import InfoCard from "../components/InfoCard";
 import Project from "../components/Project";
 import Transaction from "../components/Transaction";
 import { getPropertyById, updateProperty } from "../services/propertyServices";
+import { formatCurrency } from "../helpers/formatCurrency";
 
 const PropertyDetails = () => {
   const [state, setState] = useContext(Context);
@@ -18,6 +27,16 @@ const PropertyDetails = () => {
   const [projectModal, setProjectModal] = useState(false);
   const [transactionModal, setTransactionModal] = useState(false);
   const [selectedProject, setSelectedProject] = useState();
+  const [projectTypeFIlter, setProjectTypeFilter] = useState([
+    "in progress",
+    "completed",
+  ]);
+  const [transactionTypeFIlter, setTransactionTypeFilter] = useState([
+    "income",
+    "expense",
+  ]);
+
+  console.log("ISPIS FILTRA: ", projectTypeFIlter);
 
   const fetchData = async () => {
     try {
@@ -174,6 +193,42 @@ const PropertyDetails = () => {
     }
   };
 
+  const handleCompleteProject = async (project) => {
+    try {
+      setState({ ...state, loading: true });
+      project.status = "completed";
+
+      let result = await updateProperty(localStorage.getItem("token"), id, {
+        ...property,
+        projects: [...property.projects].map((p) =>
+          p._id === project._id ? project : p
+        ),
+      });
+      setState((prevState) => ({
+        ...prevState,
+        properties: prevState.properties.map((p) =>
+          p._id === id ? result : p
+        ),
+        loading: false,
+      }));
+      setProperty(result);
+    } catch (error) {
+      console.log(error);
+      setState({ ...state, loading: false });
+    }
+  };
+
+  const handleProjectTypeChange = (event, newType) => {
+    if (newType.length === 0) return;
+
+    setProjectTypeFilter(newType);
+  };
+  const handleTransactionTypeChange = (event, newType) => {
+    if (newType.length === 0) return;
+
+    setTransactionTypeFilter(newType);
+  };
+
   return (
     <Container maxWidth="lg">
       <Typography>Real Estate Details</Typography>
@@ -184,12 +239,16 @@ const PropertyDetails = () => {
         <Grid item xs={12} sm={6} md={4}>
           <InfoCard
             title="Purchase price: "
-            desc={property?.price}
+            desc={formatCurrency(property?.price)}
             isIcon={false}
           />
         </Grid>
         <Grid item xs={12} sm={6} md={4}>
-          <InfoCard title="Area: " desc={property?.area} isIcon={false} />
+          <InfoCard
+            title="Area: "
+            desc={property?.area + ` m²`}
+            isIcon={false}
+          />
         </Grid>
         <Grid item xs={12} sm={6} md={4}>
           <InfoCard
@@ -235,7 +294,7 @@ const PropertyDetails = () => {
             alignItems="center"
             justifyContent="center"
           >
-            1. graf
+            2. graf
           </Box>
         </Grid>
       </Grid>
@@ -255,20 +314,37 @@ const PropertyDetails = () => {
             </IconButton>
           </Box>
 
+          <ToggleButtonGroup
+            fullWidth
+            value={projectTypeFIlter}
+            onChange={handleProjectTypeChange}
+            sx={{ mb: 1 }}
+          >
+            <ToggleButton value="in progress" color="success">
+              <Typography>In progress</Typography>
+            </ToggleButton>
+            <ToggleButton value="completed" color="secondary">
+              <Typography>Completed</Typography>
+            </ToggleButton>
+          </ToggleButtonGroup>
+
           {property?.projects?.length > 0 ? (
-            property.projects.map((project) => (
-              <Project
-                key={project._id}
-                project={project}
-                onDelete={() => handleDeleteProject(project)}
-                onSelect={() => {
-                  selectedProject === project
-                    ? setSelectedProject()
-                    : setSelectedProject(project);
-                }}
-                selected={selectedProject}
-              />
-            ))
+            property.projects
+              .filter((p) => projectTypeFIlter.includes(p.status))
+              .map((project) => (
+                <Project
+                  key={project._id}
+                  project={project}
+                  onDelete={() => handleDeleteProject(project)}
+                  onComplete={() => handleCompleteProject(project)}
+                  onSelect={() => {
+                    selectedProject === project
+                      ? setSelectedProject()
+                      : setSelectedProject(project);
+                  }}
+                  selected={selectedProject}
+                />
+              ))
           ) : (
             <Typography variant="body1" color="textSecondary">
               Nema dostupnih projekata. Dodajte novi projekt.
@@ -290,14 +366,31 @@ const PropertyDetails = () => {
               <AddCircleOutlineIcon />
             </IconButton>
           </Box>
+
+          <ToggleButtonGroup
+            fullWidth
+            value={transactionTypeFIlter}
+            onChange={handleTransactionTypeChange}
+            sx={{ mb: 1 }}
+          >
+            <ToggleButton value="income" color="success">
+              <Typography>Income</Typography>
+            </ToggleButton>
+            <ToggleButton value="expense" color="error">
+              <Typography>Expense</Typography>
+            </ToggleButton>
+          </ToggleButtonGroup>
+
           {selectedProject &&
-            selectedProject?.transactions?.map((t) => (
-              <Transaction
-                key={t._id}
-                transaction={t}
-                onDelete={() => handelDeleteTransaction(t)}
-              />
-            ))}
+            selectedProject?.transactions
+              ?.filter((t) => transactionTypeFIlter.includes(t.type))
+              .map((t) => (
+                <Transaction
+                  key={t._id}
+                  transaction={t}
+                  onDelete={() => handelDeleteTransaction(t)}
+                />
+              ))}
         </Grid>
       </Grid>
 

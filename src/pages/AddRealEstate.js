@@ -87,22 +87,30 @@ const AddProperty = ({ editMode = false }) => {
   }, [editMode, id]);
 
   console.log("My property: ", property);
-  console.log("My STATE: ", state);
 
   const handleImageChange = (newImages) => {
     setProperty({ ...property, imageUrls: newImages });
   };
 
   const handleAddOwner = () => {
-    let hasEmptyOwner = property.owners.some(
+    const hasEmptyOwner = property.owners.some(
       (owner) => owner.name === "" || owner.share === ""
     );
 
     if (!hasEmptyOwner) {
-      setProperty({
-        ...property,
-        owners: [...property.owners, { name: "", share: "" }],
-      });
+      const totalShare = property.owners.reduce(
+        (total, owner) => total + parseFloat(owner.share || 0),
+        0
+      );
+
+      if (totalShare < 100) {
+        setProperty({
+          ...property,
+          owners: [...property.owners, { name: "", share: "" }],
+        });
+      } else {
+        console.error("Total ownership share must not exceed 100%.");
+      }
     }
   };
 

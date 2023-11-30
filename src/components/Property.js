@@ -7,6 +7,7 @@ import EditRoundedIcon from "@mui/icons-material/EditRounded";
 import { Context } from "../Store";
 import { formatDate } from "../helpers/formatDate";
 import { deleteProperty } from "../services/propertyServices";
+import { formatCurrency } from "../helpers/formatCurrency";
 
 const Property = ({ property }) => {
   const [state, setState] = useContext(Context);
@@ -72,7 +73,7 @@ const Property = ({ property }) => {
             justifyContent: "space-between",
           }}
         >
-          <Typography variant="h6">{property.price}€</Typography>
+          <Typography variant="h6">{formatCurrency(property.price)}</Typography>
           <Box display="flex">
             <IconButton
               onClick={() => handleDeleteProperty(property)}

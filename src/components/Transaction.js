@@ -2,6 +2,7 @@ import { Box, Card, IconButton, Stack, Typography } from "@mui/material";
 import React from "react";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { formatDate } from "../helpers/formatDate";
+import { formatCurrency } from "../helpers/formatCurrency";
 import { Colors } from "../Theme";
 const Transaction = ({ transaction, onDelete }) => {
   return (
@@ -18,7 +19,7 @@ const Transaction = ({ transaction, onDelete }) => {
         </Stack>
         <Box display="flex" alignItems="center">
           <Typography color="primary" fontWeight="bold">
-            {transaction.amount} EUR
+            {formatCurrency(transaction.amount)}
           </Typography>
           <IconButton onClick={onDelete}>
             <DeleteIcon color="error" />
