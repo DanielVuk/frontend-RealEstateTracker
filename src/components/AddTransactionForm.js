@@ -14,7 +14,7 @@ const AddTransactionForm = ({ open, onAddTransaction }) => {
 
   useEffect(() => {
     setType("income");
-    setAmount(0);
+    setAmount("");
     setDescription("");
   }, [open]);
 
@@ -60,6 +60,9 @@ const AddTransactionForm = ({ open, onAddTransaction }) => {
           onChange={(e) => setAmount(e.target.value)}
           type="number"
           sx={{ mb: 2 }}
+          inputProps={{
+            min: 0,
+          }}
         />
 
         <TextField

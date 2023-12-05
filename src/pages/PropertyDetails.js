@@ -8,17 +8,23 @@ import {
   ToggleButtonGroup,
   Typography,
 } from "@mui/material";
+import { BarChart, LineChart } from "@mui/x-charts";
 import React, { useContext, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { Context } from "../Store";
+import { Colors } from "../Theme";
 import AddProjectForm from "../components/AddProjectForm";
 import AddTransactionForm from "../components/AddTransactionForm";
 import AppModal from "../components/AppModal";
 import InfoCard from "../components/InfoCard";
 import Project from "../components/Project";
 import Transaction from "../components/Transaction";
-import { getPropertyById, updateProperty } from "../services/propertyServices";
 import { formatCurrency } from "../helpers/formatCurrency";
+import {
+  getChartData,
+  getIncomeExpenseByProjectChart,
+} from "../services/chartServices";
+import { getPropertyById, updateProperty } from "../services/propertyServices";
 
 const PropertyDetails = () => {
   const [state, setState] = useContext(Context);
@@ -36,13 +42,14 @@ const PropertyDetails = () => {
     "expense",
   ]);
 
-  console.log("ISPIS FILTRA: ", projectTypeFIlter);
+  const [incomeExpenseChart, setIncomeExpenseChart] = useState();
+  const [propertyChart, setPropertyChart] = useState();
 
   const fetchData = async () => {
     try {
       setState({ ...state, loading: true });
       let result = await getPropertyById(localStorage.getItem("token"), id);
-      console.log("Podaci prije ažuriranja:", property);
+
       setProperty({
         type: result?.type || "",
         location: result?.location || { city: "", street: "", zip: "" },
@@ -56,7 +63,6 @@ const PropertyDetails = () => {
         description: result?.description || "",
       });
       setState({ ...state, loading: false });
-      console.log("Podaci nakon ažuriranja:", result);
     } catch (error) {
       console.error("Error fetching property:", error);
       setState({ ...state, loading: false });
@@ -66,6 +72,21 @@ const PropertyDetails = () => {
   useEffect(() => {
     fetchData();
   }, [id]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await getIncomeExpenseByProjectChart(id);
+        const res = await getChartData(id);
+
+        setIncomeExpenseChart(response.data);
+        setPropertyChart(res.data);
+      } catch (error) {
+        console.error("Error fetching chart data:", error);
+      }
+    };
+    fetchData();
+  }, [property.projects]);
 
   const handleAddProject = async (newProject) => {
     try {
@@ -144,6 +165,7 @@ const PropertyDetails = () => {
         loading: false,
       }));
       setProperty(result);
+      setSelectedProject();
     } catch (error) {
       console.log(error);
       setState({ ...state, loading: false });
@@ -231,7 +253,6 @@ const PropertyDetails = () => {
 
   return (
     <Container maxWidth="lg">
-      <Typography>Real Estate Details</Typography>
       <Grid container spacing={4}>
         <Grid item xs={12} sm={6} md={4}>
           <InfoCard title="Type: " desc={property?.type} isIcon={false} />
@@ -274,28 +295,63 @@ const PropertyDetails = () => {
       </Grid>
       <Grid container>
         <Grid item xs={12} sm={6}>
-          <Box
-            minWidth={200}
-            minHeight={300}
-            bgcolor="yellow"
-            display="flex"
-            alignItems="center"
-            justifyContent="center"
-          >
-            1. graf
-          </Box>
+          {propertyChart &&
+            property.projects?.length > 0 &&
+            property.projects.reduce((count, project) => {
+              return count + project.transactions.length;
+            }, 0) > 0 && (
+              <LineChart
+                height={300}
+                colors={[Colors.primary]}
+                series={[
+                  {
+                    data: propertyChart?.propertyValues,
+                    label: "Property Value",
+                  },
+                ]}
+                xAxis={[
+                  {
+                    scaleType: "point",
+                    data: propertyChart?.dates,
+                    tickLabelStyle: {
+                      angle: 45,
+                      textAnchor: "start",
+                      fontSize: 8,
+                    },
+                  },
+                ]}
+              />
+            )}
         </Grid>
         <Grid item xs={12} sm={6}>
-          <Box
-            minWidth={200}
-            minHeight={300}
-            bgcolor="yellowgreen"
-            display="flex"
-            alignItems="center"
-            justifyContent="center"
-          >
-            2. graf
-          </Box>
+          {incomeExpenseChart &&
+            property.projects &&
+            property.projects?.length > 0 &&
+            property.projects.reduce((count, project) => {
+              return count + project.transactions.length;
+            }, 0) > 0 && (
+              <BarChart
+                height={300}
+                colors={[Colors.income, Colors.expense]}
+                series={[
+                  {
+                    data: incomeExpenseChart?.incomeData,
+                    label: "income",
+                    id: "incomeId",
+                    stack: "total",
+                  },
+                  {
+                    data: incomeExpenseChart?.expenseData,
+                    label: "expense",
+                    id: "expenseId",
+                    stack: "total",
+                  },
+                ]}
+                xAxis={[
+                  { data: incomeExpenseChart?.xLabels, scaleType: "band" },
+                ]}
+              />
+            )}
         </Grid>
       </Grid>
 
@@ -367,19 +423,21 @@ const PropertyDetails = () => {
             </IconButton>
           </Box>
 
-          <ToggleButtonGroup
-            fullWidth
-            value={transactionTypeFIlter}
-            onChange={handleTransactionTypeChange}
-            sx={{ mb: 1 }}
-          >
-            <ToggleButton value="income" color="success">
-              <Typography>Income</Typography>
-            </ToggleButton>
-            <ToggleButton value="expense" color="error">
-              <Typography>Expense</Typography>
-            </ToggleButton>
-          </ToggleButtonGroup>
+          {selectedProject && selectedProject.transactions?.length > 0 && (
+            <ToggleButtonGroup
+              fullWidth
+              value={transactionTypeFIlter}
+              onChange={handleTransactionTypeChange}
+              sx={{ mb: 1 }}
+            >
+              <ToggleButton value="income" color="success">
+                <Typography>Income</Typography>
+              </ToggleButton>
+              <ToggleButton value="expense" color="error">
+                <Typography>Expense</Typography>
+              </ToggleButton>
+            </ToggleButtonGroup>
+          )}
 
           {selectedProject &&
             selectedProject?.transactions

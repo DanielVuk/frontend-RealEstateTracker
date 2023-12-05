@@ -21,15 +21,15 @@ import {
   Typography,
 } from "@mui/material";
 import React, { useContext, useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import { Context } from "../Store";
 import ImageUpload from "../components/ImageUpload";
+import uploadImages from "../firebase/uploadImages";
 import {
   addProperty,
   getPropertyById,
   updateProperty,
 } from "../services/propertyServices";
-import uploadImages from "../firebase/uploadImages";
-import { useNavigate, useParams } from "react-router-dom";
 
 const realEstateOptions = [
   { value: "Apartment", icon: <ApartmentIcon /> },
@@ -48,8 +48,8 @@ const AddProperty = ({ editMode = false }) => {
   const [property, setProperty] = useState({
     type: "",
     location: { city: "", street: "", zip: "" },
-    area: 0,
-    price: 0,
+    area: "",
+    price: "",
     purchaseDate: new Date(),
     imageUrls: [],
     owners: [],
@@ -150,9 +150,7 @@ const AddProperty = ({ editMode = false }) => {
       setState({ ...state, loading: true });
 
       if (editMode) {
-        //srediti slike za novo slanje
         let imageDownloadUrls = await uploadImages(property.imageUrls);
-
         let result = await updateProperty(localStorage.getItem("token"), id, {
           ...property,
           imageUrls: imageDownloadUrls,
@@ -166,18 +164,13 @@ const AddProperty = ({ editMode = false }) => {
           loading: false,
         }));
         navigate("/");
-        console.log("STATE NAKON UPDATE: ", state);
       } else {
-        // pozvati upload images i proslijeti slike iz property
-        // uploadimages obradi slike, poalje na firebase, vrati url slika za download
         let imageDownloadUrls = await uploadImages(property.imageUrls);
 
-        // zovem backend, spremam property
         let result = await addProperty(localStorage.getItem("token"), {
           ...property,
           imageUrls: imageDownloadUrls,
         });
-        console.log("RESULT: ", result.data);
 
         setState({
           ...state,
@@ -259,8 +252,8 @@ const AddProperty = ({ editMode = false }) => {
                 location: { ...property.location, zip: e.target.value },
               })
             }
-            placeholder="ZIP code"
             required
+            placeholder="ZIP code"
             sx={{ mr: 5 }}
             value={property.location.zip}
             variant="standard"
@@ -271,20 +264,28 @@ const AddProperty = ({ editMode = false }) => {
           <TextField
             label="Area (m²)"
             onChange={(e) => setProperty({ ...property, area: e.target.value })}
-            type="number"
+            required
             sx={{ mr: 5 }}
+            type="number"
             value={property.area}
             variant="standard"
+            inputProps={{
+              min: 0,
+            }}
           />
           <TextField
             label="Price (EUR)"
             onChange={(e) =>
               setProperty({ ...property, price: e.target.value })
             }
+            required
             type="number"
             sx={{ mr: 5 }}
             value={property.price}
             variant="standard"
+            inputProps={{
+              min: 0,
+            }}
           />
           <TextField
             label="Purchase Date"
@@ -348,6 +349,10 @@ const AddProperty = ({ editMode = false }) => {
                     setProperty({ ...property, owners: newOwners });
                   }}
                   fullWidth
+                  inputProps={{
+                    min: 1,
+                    max: 100,
+                  }}
                 />
               </Box>
             ))}
