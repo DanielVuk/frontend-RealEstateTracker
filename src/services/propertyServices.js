@@ -1,6 +1,5 @@
 import axios from "axios";
 
-//dohvacanje user property
 const getUserPropertis = async (token) => {
   try {
     const response = await axios.get(
@@ -15,9 +14,7 @@ const getUserPropertis = async (token) => {
   }
 };
 
-//brisanje property-a
 const deleteProperty = async (token, propertyId) => {
-  console.log("ID nekretnie za brisati: ", propertyId);
   try {
     const response = await axios.delete(
       process.env.REACT_APP_API_URL + "/properties/" + propertyId,
@@ -31,9 +28,7 @@ const deleteProperty = async (token, propertyId) => {
   }
 };
 
-//dodavanje property-a
 const addProperty = async (token, property) => {
-  console.log(property);
   try {
     const response = await axios.post(
       process.env.REACT_APP_API_URL + "/properties ",
@@ -51,9 +46,7 @@ const addProperty = async (token, property) => {
   }
 };
 
-//dohvacanje property po Id property-a
 const getPropertyById = async (token, propertyId) => {
-  console.log("ID: ", propertyId);
   try {
     const response = await axios.get(
       process.env.REACT_APP_API_URL + "/properties/" + propertyId,
@@ -68,7 +61,6 @@ const getPropertyById = async (token, propertyId) => {
   }
 };
 
-//update property
 const updateProperty = async (token, propertyId, updatedProperty) => {
   try {
     const response = await axios.put(
@@ -84,7 +76,7 @@ const updateProperty = async (token, propertyId, updatedProperty) => {
     console.log(error);
   }
 };
-//get Paginated properties
+
 const getPaginatedProperties = async (currentPage, itemsPerPage, filter) => {
   try {
     const response = await axios.get(

@@ -3,8 +3,7 @@ import axios from "axios";
 const getIncomeExpenseByProjectChart = async (propertyId) => {
   return await axios.get(
     process.env.REACT_APP_API_URL +
-      "/charts/" +
-      "income-expense-by-project/" +
+      "/charts/income-expense-by-project/" +
       propertyId,
     {
       headers: { "x-auth-token": localStorage.getItem("token") },
@@ -12,13 +11,13 @@ const getIncomeExpenseByProjectChart = async (propertyId) => {
   );
 };
 
-const getChartData = async (propertyId) => {
+const getPropertyChart = async (propertyId) => {
   return await axios.get(
-    process.env.REACT_APP_API_URL + "/charts/" + "secondChart/" + propertyId,
+    process.env.REACT_APP_API_URL + "/charts/propertyChart/" + propertyId,
     {
       headers: { "x-auth-token": localStorage.getItem("token") },
     }
   );
 };
 
-export { getIncomeExpenseByProjectChart, getChartData };
+export { getIncomeExpenseByProjectChart, getPropertyChart };

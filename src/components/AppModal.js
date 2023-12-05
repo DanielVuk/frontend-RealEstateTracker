@@ -16,8 +16,8 @@ const AppModal = ({ open, onClose, children }) => {
       onClose={onClose}
       sx={{
         display: "flex",
-        justifyContent: "center",
         alignItems: "center",
+        justifyContent: "center",
       }}
     >
       <Slide in={open}>

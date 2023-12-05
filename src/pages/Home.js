@@ -15,6 +15,7 @@ import Grid from "@mui/material/Unstable_Grid2";
 import React, { useContext, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Context } from "../Store";
+import useSnackBar from "../components/AppSnackBar";
 import InfoCard from "../components/InfoCard";
 import Property from "../components/Property";
 import { formatCurrency } from "../helpers/formatCurrency";
@@ -32,6 +33,7 @@ const initialFilter = {
 
 const Home = () => {
   const [state, setState] = useContext(Context);
+  const { SnackBar, openSnackBarHelper } = useSnackBar();
   const [localState, setLocalState] = useState({
     currentPage: 1,
     itemsPerPage: 5,
@@ -56,7 +58,8 @@ const Home = () => {
         });
         setState((prevState) => ({ ...prevState, loading: false }));
       } catch (error) {
-        console.error(error);
+        console.log(error);
+        openSnackBarHelper(error.message, "error");
         setState((prevState) => ({ ...prevState, loading: false }));
       }
     };
@@ -95,6 +98,7 @@ const Home = () => {
       setState((prevState) => ({ ...prevState, loading: false }));
     } catch (error) {
       console.error(error);
+      openSnackBarHelper(error.message, "error");
       setState((prevState) => ({ ...prevState, loading: false }));
     }
   };
@@ -103,44 +107,53 @@ const Home = () => {
     <Container maxWidth="lg">
       <Grid container spacing={4}>
         <Grid item xs={12} sm={6} md={4}>
-          <InfoCard title="Total properties: " desc={state.properties.length} />
+          <InfoCard
+            desc={state.properties.length}
+            iconName="Home"
+            title="Total properties: "
+          />
         </Grid>
         <Grid item xs={12} sm={6} md={4}>
           <InfoCard
-            title="Total projects: "
             desc={state.properties.reduce(
               (sum, property) => sum + property.projects.length,
               0
             )}
+            iconName="Work"
+            title="Total projects: "
           />
         </Grid>
         <Grid item xs={12} sm={6} md={4}>
           <InfoCard
-            title="Total income: "
             desc={formatCurrency(getTotalAmountByType(state, "income"))}
+            iconName="TrendingUp"
+            title="Total income: "
           />
         </Grid>
         <Grid item xs={12} sm={6} md={4}>
           <InfoCard
-            title="Asset purchase value: "
             desc={formatCurrency(
               state.properties.reduce(
                 (sum, property) => sum + property.price,
                 0
               )
             )}
+            iconName="AccountBalance"
+            title="Asset purchase value: "
           />
         </Grid>
         <Grid item xs={12} sm={6} md={4}>
           <InfoCard
-            title="Active projects: "
             desc={getCountOfActiveProjects(state)}
+            iconName="Build"
+            title="Active projects: "
           />
         </Grid>
         <Grid item xs={12} sm={6} md={4}>
           <InfoCard
-            title="Total expenses: "
             desc={formatCurrency(getTotalAmountByType(state, "expense"))}
+            iconName="TrendingDown"
+            title="Total expenses: "
           />
         </Grid>
       </Grid>
@@ -266,6 +279,7 @@ const Home = () => {
           </Typography>
         )}
       </Grid>
+      <SnackBar />
     </Container>
   );
 };

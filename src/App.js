@@ -2,8 +2,8 @@ import { useContext, useEffect } from "react";
 import MenuRoutes from "./MenuRoutes";
 import { Context } from "./Store";
 import LoadingSpinner from "./components/LoadingSpinner";
-import { getUser } from "./services/userServices";
 import { getUserPropertis } from "./services/propertyServices";
+import { getUser } from "./services/userServices";
 
 const App = () => {
   const [state, setState] = useContext(Context);

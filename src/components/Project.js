@@ -1,22 +1,19 @@
-import BuildIcon from "@mui/icons-material/Build";
-import DeleteIcon from "@mui/icons-material/Delete";
-import EditIcon from "@mui/icons-material/Edit";
-import TaskAltIcon from "@mui/icons-material/TaskAlt";
 import { Box, Card, IconButton, Stack, Typography } from "@mui/material";
 import React from "react";
 import { formatDate } from "../helpers/formatDate";
-import DoneIcon from "@mui/icons-material/Done";
+import GetIcon from "./GetIcon";
+
 const Project = ({ project, onDelete, onComplete, onSelect, selected }) => {
   return (
     <Card
       onClick={onSelect}
       sx={{
-        display: "flex",
         alignItems: "center",
-        minWidth: "400px",
         borderRadius: 5,
-        mb: 1,
         boxShadow: 3,
+        display: "flex",
+        mb: 1,
+        minWidth: "400px",
         padding: "15px",
         "&:hover": {
           cursor: "pointer",
@@ -31,19 +28,19 @@ const Project = ({ project, onDelete, onComplete, onSelect, selected }) => {
         mr={1}
         sx={{
           display: "flex",
-          justifyContent: "center",
           alignItems: "center",
-          height: "50px",
-          width: "55px",
           border: "4px solid",
           borderColor: "primary.main",
           borderRadius: "25px",
+          height: "50px",
+          justifyContent: "center",
+          width: "55px",
         }}
       >
         {project.status === "in progress" ? (
-          <BuildIcon sx={{ color: "primary.main" }} size="large" />
+          <GetIcon iconName="Build" color="primary.main" size="medium" />
         ) : (
-          <TaskAltIcon sx={{ color: "primary.main" }} size="large" />
+          <GetIcon iconName="Done" color="primary.main" size="medium" />
         )}
       </Box>
       <Box display="flex" justifyContent="space-between" width="100%">
@@ -60,17 +57,17 @@ const Project = ({ project, onDelete, onComplete, onSelect, selected }) => {
               backgroundColor: "background.default",
             }}
           >
-            <DeleteIcon color="error" />
+            <GetIcon iconName="Delete" color="error.main" />
           </IconButton>
           {project.status === "in progress" && (
             <IconButton
               onClick={onComplete}
               sx={{
                 backgroundColor: "background.default",
-                margin: "3px 15px",
+                ml: 1,
               }}
             >
-              <DoneIcon color="primary" />
+              <GetIcon iconName="Done" color="primary.main" />
             </IconButton>
           )}
         </Box>

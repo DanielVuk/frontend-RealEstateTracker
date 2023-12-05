@@ -1,7 +1,6 @@
-import AddAPhotoIcon from "@mui/icons-material/AddAPhoto";
-import DeleteIcon from "@mui/icons-material/Delete";
 import { Box, Button, Grid, IconButton, Typography } from "@mui/material";
 import React from "react";
+import GetIcon from "../components/GetIcon";
 
 const ImageUpload = ({ images, onImageChange }) => {
   console.log("PRIKAZ:::", images);
@@ -36,7 +35,7 @@ const ImageUpload = ({ images, onImageChange }) => {
         <Button
           variant="contained"
           component="span"
-          startIcon={<AddAPhotoIcon />}
+          startIcon={<GetIcon iconName="AddAPhoto" />}
           sx={{ marginTop: "2rem" }}
         >
           Add Images
@@ -60,12 +59,10 @@ const ImageUpload = ({ images, onImageChange }) => {
                       <img src={image} alt={`${index}`} height="100" />
                     )}
                     <IconButton
-                      size="small"
-                      color="error"
                       onClick={() => handleRemoveImage(index)}
                       sx={{ position: "absolute", top: 0, right: 0 }}
                     >
-                      <DeleteIcon />
+                      <GetIcon color="error.main" iconName="Delete" />
                     </IconButton>
                   </Box>
                 </Grid>

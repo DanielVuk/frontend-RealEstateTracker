@@ -1,33 +1,31 @@
-import { AttachMoney } from "@mui/icons-material";
-import { Box, IconButton, Paper, Stack, Typography } from "@mui/material";
+import { Box, Paper, Stack, Typography } from "@mui/material";
 import React from "react";
+import GetIcon from "./GetIcon";
 
-const InfoCard = ({ title, desc, isIcon = true }) => {
+const InfoCard = ({ title, desc, iconName = null }) => {
   return (
     <Paper
       sx={{
+        alignItems: "center",
         bgcolor: "white",
         display: "flex",
+        justifyContent: iconName ? "none" : "center",
         p: 1,
-        alignItems: "center",
-        justifyContent: isIcon ? "none" : "center",
       }}
     >
       <Box
         mr={2}
         sx={{
           alignItems: "center",
-          backgroundColor: "#17A2B8",
+          backgroundColor: "secondary.dark",
           borderRadius: 1,
-          display: isIcon ? "flex" : "none",
+          display: iconName ? "flex" : "none",
           height: "64px",
           justifyContent: "center",
           width: "70px",
         }}
       >
-        <IconButton sx={{ color: "#fff" }}>
-          <AttachMoney fontSize="large" />
-        </IconButton>
+        <GetIcon iconName={iconName} size="medium" />
       </Box>
       <Stack mt={1} alignItems="center">
         <Typography fontWeight="bold">{title}</Typography>

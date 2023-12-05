@@ -53,16 +53,16 @@ const AddTransactionForm = ({ open, onAddTransaction }) => {
         </ToggleButtonGroup>
 
         <TextField
-          label="Amount"
-          placeholder="amount"
-          value={amount}
-          required
-          onChange={(e) => setAmount(e.target.value)}
-          type="number"
-          sx={{ mb: 2 }}
           inputProps={{
             min: 0,
           }}
+          label="Amount"
+          onChange={(e) => setAmount(e.target.value)}
+          placeholder="amount"
+          required
+          sx={{ mb: 2 }}
+          type="number"
+          value={amount}
         />
 
         <TextField

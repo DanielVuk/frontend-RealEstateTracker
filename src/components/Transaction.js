@@ -1,9 +1,9 @@
 import { Box, Card, IconButton, Stack, Typography } from "@mui/material";
 import React from "react";
-import DeleteIcon from "@mui/icons-material/Delete";
 import { formatDate } from "../helpers/formatDate";
 import { formatCurrency } from "../helpers/formatCurrency";
 import { Colors } from "../Theme";
+import GetIcon from "./GetIcon";
 const Transaction = ({ transaction, onDelete }) => {
   return (
     <Card sx={{ marginBottom: "0.5rem" }}>
@@ -22,7 +22,7 @@ const Transaction = ({ transaction, onDelete }) => {
             {formatCurrency(transaction.amount)}
           </Typography>
           <IconButton onClick={onDelete}>
-            <DeleteIcon color="error" />
+            <GetIcon iconName="DeleteIcon" color="error.main" />
           </IconButton>
         </Box>
       </Box>

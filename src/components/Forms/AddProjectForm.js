@@ -10,7 +10,6 @@ const AddProjectForm = ({ onAddProject, open }) => {
 
   const handleSubmit = () => {
     onAddProject({ name });
-    console.log("DODAJ PROJEKT   ");
   };
 
   return (
@@ -23,11 +22,11 @@ const AddProjectForm = ({ onAddProject, open }) => {
       <Stack>
         <Typography variant="h6">Add new project</Typography>
         <TextField
-          type="text"
+          onChange={(e) => setName(e.target.value)}
           placeholder="Project name"
           required
+          type="text"
           value={name}
-          onChange={(e) => setName(e.target.value)}
         />
 
         <Button type="submit">ADD</Button>

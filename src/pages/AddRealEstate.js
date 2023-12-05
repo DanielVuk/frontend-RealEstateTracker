@@ -23,6 +23,7 @@ import {
 import React, { useContext, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Context } from "../Store";
+import useSnackBar from "../components/AppSnackBar";
 import ImageUpload from "../components/ImageUpload";
 import uploadImages from "../firebase/uploadImages";
 import {
@@ -42,6 +43,7 @@ const realEstateOptions = [
 
 const AddProperty = ({ editMode = false }) => {
   const [state, setState] = useContext(Context);
+  const { SnackBar, openSnackBarHelper } = useSnackBar();
   const { id } = useParams();
   const navigate = useNavigate();
 
@@ -62,7 +64,6 @@ const AddProperty = ({ editMode = false }) => {
     try {
       if (editMode) {
         let result = await getPropertyById(localStorage.getItem("token"), id);
-        console.log("DOBIVRENI PROPERTY: ", result);
 
         setProperty({
           type: result?.type || "",
@@ -79,14 +80,13 @@ const AddProperty = ({ editMode = false }) => {
       }
     } catch (error) {
       console.error("Error fetching property:", error);
+      openSnackBarHelper(error.message, "error");
     }
   };
 
   useEffect(() => {
     fetchData();
   }, [editMode, id]);
-
-  console.log("My property: ", property);
 
   const handleImageChange = (newImages) => {
     setProperty({ ...property, imageUrls: newImages });
@@ -181,6 +181,7 @@ const AddProperty = ({ editMode = false }) => {
       }
     } catch (error) {
       console.log(error);
+      openSnackBarHelper(error.message, "error");
       setState({ ...state, loading: false });
     }
   };
@@ -360,7 +361,6 @@ const AddProperty = ({ editMode = false }) => {
               Add Owner
             </Button>
           </Grid>
-          {/* Unos kontakata */}
           <Grid item>
             <Typography fontWeight="bold" mb={2}>
               Contacts:
@@ -418,6 +418,7 @@ const AddProperty = ({ editMode = false }) => {
           Real Estate
         </Button>
       </form>
+      <SnackBar />
     </Container>
   );
 };

@@ -1,4 +1,3 @@
-import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import {
   Box,
   Container,
@@ -13,21 +12,24 @@ import React, { useContext, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { Context } from "../Store";
 import { Colors } from "../Theme";
-import AddProjectForm from "../components/AddProjectForm";
-import AddTransactionForm from "../components/AddTransactionForm";
 import AppModal from "../components/AppModal";
+import useSnackBar from "../components/AppSnackBar";
+import AddProjectForm from "../components/Forms/AddProjectForm";
+import AddTransactionForm from "../components/Forms/AddTransactionForm";
+import GetIcon from "../components/GetIcon";
 import InfoCard from "../components/InfoCard";
 import Project from "../components/Project";
 import Transaction from "../components/Transaction";
 import { formatCurrency } from "../helpers/formatCurrency";
 import {
-  getChartData,
   getIncomeExpenseByProjectChart,
+  getPropertyChart,
 } from "../services/chartServices";
 import { getPropertyById, updateProperty } from "../services/propertyServices";
 
 const PropertyDetails = () => {
   const [state, setState] = useContext(Context);
+  const { SnackBar, openSnackBarHelper } = useSnackBar();
   const { id } = useParams();
   const [property, setProperty] = useState({});
   const [projectModal, setProjectModal] = useState(false);
@@ -65,6 +67,7 @@ const PropertyDetails = () => {
       setState({ ...state, loading: false });
     } catch (error) {
       console.error("Error fetching property:", error);
+      openSnackBarHelper(error.message, "error");
       setState({ ...state, loading: false });
     }
   };
@@ -77,12 +80,13 @@ const PropertyDetails = () => {
     const fetchData = async () => {
       try {
         const response = await getIncomeExpenseByProjectChart(id);
-        const res = await getChartData(id);
+        const res = await getPropertyChart(id);
 
         setIncomeExpenseChart(response.data);
         setPropertyChart(res.data);
       } catch (error) {
         console.error("Error fetching chart data:", error);
+        openSnackBarHelper(error.message, "error");
       }
     };
     fetchData();
@@ -108,6 +112,7 @@ const PropertyDetails = () => {
       setProjectModal(false);
     } catch (error) {
       console.log(error);
+      openSnackBarHelper(error.message, "error");
       setState({ ...state, loading: false });
       setProjectModal(false);
     }
@@ -141,8 +146,10 @@ const PropertyDetails = () => {
       setProperty(result);
       setTransactionModal(false);
       setSelectedProject(result.projects[projectIndex]);
+      openSnackBarHelper("Transaction successfully added.", "success");
     } catch (error) {
       console.log(error);
+      openSnackBarHelper(error.message, "error");
       setState({ ...state, loading: false });
       setTransactionModal(false);
     }
@@ -361,28 +368,26 @@ const PropertyDetails = () => {
             <Typography variant="h6" my={1}>
               Projects: {property?.projects?.length}
             </Typography>
-            <IconButton
-              color="primary"
-              size="large"
-              onClick={() => setProjectModal(true)}
-            >
-              <AddCircleOutlineIcon />
+            <IconButton size="large" onClick={() => setProjectModal(true)}>
+              <GetIcon iconName="AddCircleOutline" color="primary.main" />
             </IconButton>
           </Box>
 
-          <ToggleButtonGroup
-            fullWidth
-            value={projectTypeFIlter}
-            onChange={handleProjectTypeChange}
-            sx={{ mb: 1 }}
-          >
-            <ToggleButton value="in progress" color="success">
-              <Typography>In progress</Typography>
-            </ToggleButton>
-            <ToggleButton value="completed" color="secondary">
-              <Typography>Completed</Typography>
-            </ToggleButton>
-          </ToggleButtonGroup>
+          {property.projects?.length > 0 && (
+            <ToggleButtonGroup
+              fullWidth
+              value={projectTypeFIlter}
+              onChange={handleProjectTypeChange}
+              sx={{ mb: 1 }}
+            >
+              <ToggleButton value="in progress" color="success">
+                <Typography>In progress</Typography>
+              </ToggleButton>
+              <ToggleButton value="completed" color="secondary">
+                <Typography>Completed</Typography>
+              </ToggleButton>
+            </ToggleButtonGroup>
+          )}
 
           {property?.projects?.length > 0 ? (
             property.projects
@@ -413,14 +418,15 @@ const PropertyDetails = () => {
             <Typography variant="h6" my={1}>
               Transactions: {selectedProject?.transactions?.length}
             </Typography>
-            <IconButton
-              color="primary"
-              disabled={selectedProject === undefined ? true : false}
-              size="large"
-              onClick={() => setTransactionModal(true)}
-            >
-              <AddCircleOutlineIcon />
-            </IconButton>
+
+            {selectedProject && (
+              <IconButton
+                size="large"
+                onClick={() => setTransactionModal(true)}
+              >
+                <GetIcon iconName="AddCircleOutline" color="primary.main" />
+              </IconButton>
+            )}
           </Box>
 
           {selectedProject && selectedProject.transactions?.length > 0 && (
@@ -465,6 +471,7 @@ const PropertyDetails = () => {
           open={transactionModal}
         />
       </AppModal>
+      <SnackBar />
     </Container>
   );
 };

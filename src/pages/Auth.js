@@ -1,15 +1,9 @@
-import { Person, Visibility, VisibilityOff } from "@mui/icons-material";
-import EmailIcon from "@mui/icons-material/Email";
-import LockIcon from "@mui/icons-material/Lock";
-import LockResetIcon from "@mui/icons-material/LockReset";
 import {
-  Alert,
   Box,
   Button,
   Divider,
   IconButton,
   InputAdornment,
-  Snackbar,
   Stack,
   TextField,
   Typography,
@@ -17,17 +11,18 @@ import {
 import jwtDecode from "jwt-decode";
 import React, { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Context } from "../Store";
+import { Context, initialState } from "../Store";
 import logo from "../assets/logo.png";
+import useSnackBar from "../components/AppSnackBar";
+import GetIcon from "../components/GetIcon";
 import { getUser, login, register } from "../services/userServices";
 
 const Auth = () => {
   const navigate = useNavigate();
   const [state, setState] = useContext(Context);
 
-  const [error, setError] = useState("");
+  const { SnackBar, openSnackBarHelper } = useSnackBar();
   const [isLogin, setIsLogin] = useState(true);
-  const [openSnackBar, setOpenSnackBar] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
   const [name, setName] = useState("");
@@ -37,6 +32,19 @@ const Auth = () => {
 
   useEffect(() => {
     if (localStorage.getItem("token")) {
+      const expiresIn =
+        localStorage.getItem("tokenExpiration") * 1000 - new Date().getTime();
+
+      if (expiresIn < 0) {
+        setState(initialState);
+        localStorage.clear();
+      } else {
+        setTimeout(() => {
+          setState(initialState);
+          localStorage.clear();
+        }, expiresIn);
+      }
+
       navigate("/", { replace: true });
     }
   }, []);
@@ -47,7 +55,6 @@ const Auth = () => {
     try {
       setState({ ...state, loading: true });
       if (isLogin) {
-        console.log("Korisnik se logira");
         let response = await login(email, password);
         localStorage.setItem("token", response.data);
         let decoded = jwtDecode(response.data);
@@ -69,8 +76,11 @@ const Auth = () => {
       } else {
         console.log("Korisnik se registrira");
         if (password !== confirmationPass) {
-          setError("The confirmation password is incorrect.");
-          setOpenSnackBar(true);
+          openSnackBarHelper(
+            "The confirmation password is incorrect.",
+            "error"
+          );
+
           setState({ ...state, loading: false });
           return;
         }
@@ -95,8 +105,9 @@ const Auth = () => {
         navigate("/", { replace: true });
       }
     } catch (err) {
-      setError(err.response.data);
-      setOpenSnackBar(true);
+      console.log(err);
+      openSnackBarHelper(err.response?.data || err.message, "error");
+
       setState({ ...state, loading: false });
     }
   };
@@ -143,7 +154,11 @@ const Auth = () => {
               InputProps={{
                 startAdornment: (
                   <InputAdornment position="start">
-                    <Person color="primary"></Person>
+                    <GetIcon
+                      iconName="Person"
+                      color="primary.main"
+                      size="medium"
+                    />
                   </InputAdornment>
                 ),
               }}
@@ -159,7 +174,11 @@ const Auth = () => {
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
-                  <EmailIcon color="primary"></EmailIcon>
+                  <GetIcon
+                    iconName="Email"
+                    color="primary.main"
+                    size="medium"
+                  />
                 </InputAdornment>
               ),
             }}
@@ -174,16 +193,16 @@ const Auth = () => {
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
-                  <LockIcon color="primary"></LockIcon>
+                  <GetIcon iconName="Lock" color="primary.main" size="medium" />
                 </InputAdornment>
               ),
               endAdornment: (
                 <InputAdornment position="end">
                   <IconButton onClick={() => setShowPassword(!showPassword)}>
                     {showPassword ? (
-                      <VisibilityOff color="primary" />
+                      <GetIcon iconName="VisibilityOff" color="primary.main" />
                     ) : (
-                      <Visibility color="primary" />
+                      <GetIcon iconName="Visibility" color="primary.main" />
                     )}
                   </IconButton>
                 </InputAdornment>
@@ -201,16 +220,23 @@ const Auth = () => {
               InputProps={{
                 startAdornment: (
                   <InputAdornment position="start">
-                    <LockResetIcon color="primary" />
+                    <GetIcon
+                      iconName="LockReset"
+                      color="primary.main"
+                      size="medium"
+                    />
                   </InputAdornment>
                 ),
                 endAdornment: (
                   <InputAdornment position="end">
                     <IconButton onClick={() => setShowPassword(!showPassword)}>
                       {showPassword ? (
-                        <VisibilityOff color="primary" />
+                        <GetIcon
+                          iconName="VisibilityOff"
+                          color="primary.main"
+                        />
                       ) : (
-                        <Visibility color="primary" />
+                        <GetIcon iconName="Visibility" color="primary.main" />
                       )}
                     </IconButton>
                   </InputAdornment>
@@ -247,14 +273,7 @@ const Auth = () => {
           </Stack>
         </Box>
       </Box>
-      <Snackbar
-        anchorOrigin={{ vertical: "top", horizontal: "right" }}
-        autoHideDuration={6000}
-        onClose={() => setOpenSnackBar(false)}
-        open={openSnackBar}
-      >
-        <Alert severity="error">{error}</Alert>
-      </Snackbar>
+      <SnackBar />
     </Stack>
   );
 };
