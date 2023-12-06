@@ -1,6 +1,5 @@
 import React from "react";
 import { Route, Routes } from "react-router-dom";
-
 import ProtectedRoutes from "./components/ProtectedRoutes";
 import SideNavBar from "./components/SideNavBar";
 import AddRealEstate from "./pages/AddRealEstate";

@@ -10,7 +10,6 @@ const App = () => {
 
   useEffect(() => {
     const token = localStorage.getItem("token");
-    console.log("POCETAK", state);
 
     if (token) {
       const fetchUser = async () => {
