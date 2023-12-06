@@ -1,10 +1,18 @@
-# RealEstate Tracker
+# RealEstateTracker
 
 Web aplikacija za praćenje stanja nekretnina.
 
 ### Autor:
 
 - **Daniel Vuk** (dvuk@unipu.hr)
+
+### Javni link na aplikaciju
+
+Web: [RealEstateTracker](https://realestatetracker.onrender.com)
+
+Test
+email: user@user.com
+password: 123123
 
 ### Kratki opis funkcionalnosti
 
